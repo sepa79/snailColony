@@ -16,3 +16,11 @@ pnpm compose:up
 ```
 
 Access the client at http://localhost/ and connect to a server via WebSocket URL.
+
+## Documentation
+
+- [CHANGELOG](CHANGELOG.md)
+- [PLAN](PLAN.md)
+- [STAGE](STAGE.md)
+
+Current version: 0.1.0
