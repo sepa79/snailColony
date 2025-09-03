@@ -1,0 +1,23 @@
+{
+  "name": "snailcolony",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "libs/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k \"pnpm --filter @snail/client dev\" \"pnpm --filter @snail/server start:dev\"",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "compose:up": "docker compose up --build",
+    "compose:down": "docker compose down -v"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "concurrently": "^9.0.0"
+  },
+  "version": "0.1.0"
+}

@@ -1,0 +1,52 @@
+version: "3.9"
+services:
+  client:
+    build: ./apps/client
+    container_name: snailcolony_client
+    ports:
+      - "80:80"
+    environment:
+      - VITE_SERVER_URL=ws://localhost:3000
+    depends_on: [server]
+
+  server:
+    build: ./apps/server
+    container_name: snailcolony_server
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - PGHOST=postgres
+      - PGUSER=snail
+      - PGPASSWORD=snail
+      - PGDATABASE=snailcolony
+      - PGPORT=5432
+      - AMQP_URL=amqp://guest:guest@rabbitmq:5672
+      - TICK_RATE=10
+    depends_on: [redis, postgres, rabbitmq]
+
+  redis:
+    image: redis:7-alpine
+    container_name: snailcolony_redis
+    ports: ["6379:6379"]
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: snailcolony_pg
+    environment:
+      - POSTGRES_USER=snail
+      - POSTGRES_PASSWORD=snail
+      - POSTGRES_DB=snailcolony
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: snailcolony_rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+volumes:
+  pgdata:
