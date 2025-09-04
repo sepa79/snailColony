@@ -2,11 +2,11 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 RUN npm install -g pnpm
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json pnpm-workspace.yaml .npmrc ./
 COPY apps ./apps
 COPY libs ./libs
 RUN pnpm install
-RUN pnpm --filter @snail/server... build
+RUN pnpm --filter @snail/server build
 RUN pnpm --filter @snail/server deploy --prod server-deploy
 
 # Run the compiled server
