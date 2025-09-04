@@ -15,7 +15,9 @@ The application uses Docker for dependencies:
 pnpm compose:up
 ```
 
-Access the client at http://localhost/ and connect to a server via WebSocket URL.
+Access the client at http://localhost/ and connect to a server via WebSocket URL. After connecting,
+an isometric map is rendered using PixiJS. Use arrow keys or drag to pan the camera. Press **G** to
+toggle grid lines and **W** to enable or disable simple water animation.
 
 The server also serves a lightweight dashboard at http://localhost:3000/ui for viewing state and launching simple game actions.
 
