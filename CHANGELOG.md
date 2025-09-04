@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2025-09-04
+### Added
+- Map protocol with terrain tiles and room state snapshot.
+- Server MapService that loads and validates a JSON map seed and exposes a REST endpoint.
+### Changed
+- WebSocket gateway now sends the initial room state to new clients.
+- Server bundle built via `pnpm deploy` to include workspace dependencies.
+
 ## [0.1.3] - 2025-09-04
 ### Added
 - Reusable log console for IN/OUT/System messages with timestamps in client and server UIs.
