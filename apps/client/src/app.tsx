@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { EntityStatus } from './ui/entity-status';
+import { LogConsole } from './ui/log-console';
 
 type StateMessage = {
   t: 'State';
@@ -10,10 +11,19 @@ export function App() {
   const [url, setUrl] = useState('ws://localhost:3000');
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [snapshot, setSnapshot] = useState<StateMessage | null>(null);
+  const [inLogs, setInLogs] = useState<string[]>([]);
+  const [outLogs, setOutLogs] = useState<string[]>([]);
+  const [systemLogs, setSystemLogs] = useState<string[]>([]);
 
   const connect = () => {
+    setSystemLogs((l) => [...l, `Connecting to ${url}`]);
+    setOutLogs((l) => [...l, `WS connect ${url}`]);
     const ws = new WebSocket(url);
+    ws.onopen = () => setSystemLogs((l) => [...l, 'WebSocket opened']);
+    ws.onclose = () => setSystemLogs((l) => [...l, 'Connection closed']);
+    ws.onerror = () => setSystemLogs((l) => [...l, 'WebSocket error']);
     ws.onmessage = (ev) => {
+      setInLogs((l) => [...l, ev.data]);
       const msg = JSON.parse(ev.data) as StateMessage | { t: string };
       if (msg.t === 'State') {
         setSnapshot(msg);
@@ -45,6 +55,7 @@ export function App() {
           />
         </div>
       )}
+      <LogConsole inLogs={inLogs} outLogs={outLogs} systemLogs={systemLogs} />
     </div>
   );
 }
