@@ -8,11 +8,11 @@ Docelowo: **prosty RTS** w parku po deszczu, z **Koloniami**, **Worker Snails**,
 ## Struktura
 - `PHASES.md` – przegląd faz i kolejności.
 - `codex/phase-XX-*.md` – zadania dla Codexa (requirements + acceptance criteria).
-- `apps/server/config/parameters.json` – startowe parametry balansu (można zmieniać podczas implementacji).
+- `plan/config/parameters.json` – startowe parametry balansu (można zmieniać podczas implementacji).
 - `docs/GAME_LOGIC_SC.md` – zwięzły opis logiki gry i pętli symulacji.
 
 ## Jak używać
 1. Zacznij od `PHASES.md` aby zobaczyć plan.
 2. Otwórz kolejne pliki w `codex/` i dawaj je Codexowi **faza po fazie**.
-3. Parametry do tuningu znajdziesz w `apps/server/config/parameters.json`.
+3. Parametry do tuningu znajdziesz w `plan/config/parameters.json`.
 4. W razie wątpliwości – zajrzyj do `docs/GAME_LOGIC_SC.md`.

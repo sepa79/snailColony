@@ -5,7 +5,7 @@ Wprowadzić Bazy/ Kolonie oraz logistykę zasobów z osobnymi magazynami.
 
 ## Wymagania
 - **Base** (start): węzeł produkcyjny Workerów, magazyn `{biomass, water}`.
-- **Colony**: konstrukcja na polu zieleni (nie na chodniku); koszt i czas budowy z `apps/server/config/parameters.json`.
+- **Colony**: konstrukcja na polu zieleni (nie na chodniku); koszt i czas budowy z `plan/config/parameters.json`.
 - **Zbieranie**: Worker może podnieść zasób ze źródła do swojej `carry` (do 5).
 - **Oddawanie**: Worker oddaje ładunek **tylko** do najbliższej własnej bazy/kolonii (tej, do której został przypisany).
 - Każda baza gromadzi surowce **oddzielnie**.

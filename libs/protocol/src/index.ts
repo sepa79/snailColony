@@ -54,12 +54,57 @@ export interface MapDef {
   moisture: number;
 }
 
+export interface GameParams {
+  terrain: Record<
+    string,
+    { base_speed: number; hydration_cost: number; slime_weight: number }
+  >;
+  moisture: {
+    thresholds: { wet: number; damp: number; dry: number };
+    sidewalk_dry_speed: number;
+    sidewalk_dry_hydration_cost: number;
+  };
+  slime: {
+    deposit_rate_per_step: number;
+    speed_bonus_max: number;
+    hydration_save_max: number;
+    decay_per_tick: Record<string, Record<string, number>>;
+  };
+  unit_worker: { carry_capacity: number; hydration_max: number };
+  colony: {
+    build_cost: { biomass: number; water: number };
+    build_time_seconds: number;
+  };
+  upkeep: {
+    interval_seconds: number;
+    base: { water: number; biomass: number };
+    colony: { water: number; biomass: number };
+    aura: {
+      radius: number;
+      slime_decay_multiplier: number;
+      hydration_cost_hard_multiplier: number;
+      speed_bonus: number;
+      production_time_multiplier: number;
+    };
+    dormant_collapse_seconds: number;
+  };
+  goal: {
+    type: string;
+    colonies_required: number;
+    sustain_minutes: number;
+    active_min_stock_any: number;
+  };
+  simulation: { tick_rate_hz: number; order: string[] };
+  resources?: { biomass?: number; water?: number };
+}
+
 export type ServerMessage =
   | { t: 'Pong'; nonce: number; rtt: number }
   | {
       t: 'RoomState';
       map: MapDef;
       entities: { id: number; x: number; y: number; hydration: number }[];
+      params: GameParams;
     }
   | {
       t: 'State';

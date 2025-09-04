@@ -7,7 +7,6 @@ import {
   Tile,
   MapDef,
 } from '../../../../libs/protocol/src';
-import { join } from 'path';
 
 describe('MapService', () => {
   it('loads map and roundtrips', () => {
@@ -64,14 +63,4 @@ describe('MapService', () => {
     expect(() => validateMap(map)).toThrow();
   });
 
-  it('locates parameters.json from nested working directory', () => {
-    const original = process.cwd();
-    process.chdir(join(__dirname, '..'));
-    try {
-      const svc = new MapService();
-      expect(() => svc.load('test')).not.toThrow();
-    } finally {
-      process.chdir(original);
-    }
-  });
 });

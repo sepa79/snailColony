@@ -2,10 +2,11 @@ import { IWorld, defineQuery, addComponent } from 'bitecs';
 import { Hydration, Velocity, Position, Worker, Dead } from '../components';
 import { MapDef } from '@snail/protocol';
 import { terrainAt, isWaterNode, tileAt } from '../../game/terrain';
+import type { GameParams } from '../../config';
 
 interface Params {
-  terrain: Record<string, { hydration_cost: number }>;
-  slime: { hydration_save_max: number };
+  terrain: GameParams['terrain'];
+  slime: Pick<GameParams['slime'], 'hydration_save_max'>;
 }
 
 const hydrateQuery = defineQuery([Hydration, Velocity, Position, Worker]);

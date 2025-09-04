@@ -9,7 +9,7 @@ Dodać jednostkę **Worker Snail** z ruchem po siatce i Hydration zależnym od t
   - ruch po siatce pick-by-pick (lub A*), z prędkością zależną od `terrain.base_speed`.
 - Hydration:
   - Na terenach miękkich (`grass/leaf_litter/moss`) koszt = 0.
-  - Na twardych (`gravel/sidewalk`) koszt jak w `apps/server/config/parameters.json` + modyfikacja dla `dry sidewalk`.
+  - Na twardych (`gravel/sidewalk`) koszt jak w `plan/config/parameters.json` + modyfikacja dla `dry sidewalk`.
   - Gdy `hydration<=0` **na twardym polu** → jednostka umiera.
   - Odnowa przy **Water node** i w **Bazie/Kolonii** (gdy powstaną).
 

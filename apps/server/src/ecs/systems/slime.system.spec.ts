@@ -9,12 +9,7 @@ import type {
   Structure,
   TerrainType,
 } from '@snail/protocol';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-const params = JSON.parse(
-  readFileSync(join(__dirname, '../../../config/parameters.json'), 'utf-8'),
-);
+import params from '../../config';
 
 function makeMap(terrain: string, moisture = 0, slime = 0): MapDef {
   return {

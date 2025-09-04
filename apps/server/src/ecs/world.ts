@@ -6,8 +6,7 @@ import { slimeDepositSystem } from './systems/slime-deposit.system';
 import { slimeDecaySystem } from './systems/slime-decay.system';
 import { MapService } from '../game/map.service';
 import { MapDef } from '@snail/protocol';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import params from '../config';
 
 interface Params {
   terrain: Record<string, { base_speed: number; hydration_cost: number; slime_weight: number }>;
@@ -41,9 +40,7 @@ export class World {
     Hydration.value[this.snail] = 100;
     const svc = new MapService();
     this.map = svc.load('test');
-    this.params = JSON.parse(
-      readFileSync(join(__dirname, '../../config/parameters.json'), 'utf-8')
-    ) as Params;
+    this.params = params as Params;
   }
 
   tick() {
