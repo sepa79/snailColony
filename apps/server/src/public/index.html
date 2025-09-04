@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Snail Colony Server</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    #state { background: #f5f5f5; padding: 10px; border: 1px solid #ccc; height: 200px; overflow: auto; }
+    button { margin-right: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Snail Colony Server</h1>
+  <div>
+    <button id="createBtn">Create Game</button>
+    <input id="roomId" placeholder="Room ID" />
+    <button id="startBtn">Start</button>
+    <button id="loadBtn">Load</button>
+  </div>
+  <h2>State</h2>
+  <pre id="state"></pre>
+  <script>
+    const stateEl = document.getElementById('state');
+    const roomInput = document.getElementById('roomId');
+
+    document.getElementById('createBtn').onclick = async () => {
+      const res = await fetch('/lobby/room', { method: 'POST' });
+      const data = await res.json();
+      roomInput.value = data.roomId;
+    };
+
+    document.getElementById('startBtn').onclick = async () => {
+      const id = roomInput.value;
+      if (!id) return;
+      await fetch(`/lobby/room/${id}/start`, { method: 'POST' });
+    };
+
+    document.getElementById('loadBtn').onclick = async () => {
+      const id = roomInput.value;
+      if (!id) return;
+      await fetch(`/lobby/room/${id}/load`, { method: 'POST' });
+    };
+
+    const ws = new WebSocket(`ws://${location.host}/ws`);
+    ws.onmessage = (ev) => {
+      stateEl.textContent = ev.data;
+    };
+  </script>
+</body>
+</html>
