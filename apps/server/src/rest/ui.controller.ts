@@ -6,6 +6,6 @@ import { join } from 'path';
 export class UiController {
   @Get()
   index(@Res() res: Response) {
-    return res.sendFile(join(__dirname, '..', '..', 'public', 'index.html'));
+    return res.sendFile(join(__dirname, '..', 'public', 'index.html'));
   }
 }
