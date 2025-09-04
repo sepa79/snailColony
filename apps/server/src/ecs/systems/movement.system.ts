@@ -2,10 +2,11 @@ import { IWorld, defineQuery } from 'bitecs';
 import { Position, Velocity } from '../components';
 import { MapDef } from '@snail/protocol';
 import { terrainAt, tileAt } from '../../game/terrain';
+import type { GameParams } from '../../config';
 
 interface Params {
-  terrain: Record<string, { base_speed: number }>;
-  slime: { speed_bonus_max: number };
+  terrain: GameParams['terrain'];
+  slime: Pick<GameParams['slime'], 'speed_bonus_max'>;
 }
 
 const moveQuery = defineQuery([Position, Velocity]);

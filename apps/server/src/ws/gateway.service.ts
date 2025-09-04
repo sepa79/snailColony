@@ -9,6 +9,7 @@ import { Server, WebSocket } from 'ws';
 import { World } from '../ecs/world';
 import { ClientCommand, ServerMessage, MapDef } from '@snail/protocol';
 import { MapService } from '../game/map.service';
+import params from '../config';
 
 @WebSocketGateway({ path: '/ws' })
 export class GameGateway
@@ -46,6 +47,7 @@ export class GameGateway
       t: 'RoomState',
       map: this.map,
       entities: this.world.snapshot(),
+      params,
     };
     client.send(JSON.stringify(init));
 
@@ -65,6 +67,7 @@ export class GameGateway
           t: 'RoomState',
           map: this.map,
           entities: this.world.snapshot(),
+          params,
         };
         client.send(JSON.stringify(init));
       }

@@ -8,12 +8,8 @@ import type {
   Structure,
   TerrainType,
 } from '@snail/protocol';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-const params = JSON.parse(
-  readFileSync(join(__dirname, '../../../config/parameters.json'), 'utf-8')
-);
+import baseParams from '../../config';
+const params = JSON.parse(JSON.stringify(baseParams));
 
 function makeMap(terrain: string, water?: number): MapDef {
   return {
@@ -78,5 +74,13 @@ describe('hydrationSystem', () => {
     const base = params.terrain.gravel.hydration_cost;
     const expected = 5 - base * (1 - params.slime.hydration_save_max);
     expect(Hydration.value[eid]).toBeCloseTo(expected);
+  });
+
+  it('respects modified hydration cost', () => {
+    const { world, eid, map } = setup(makeMap('gravel'), 5, 1, 0);
+    const custom = JSON.parse(JSON.stringify(baseParams));
+    custom.terrain.gravel.hydration_cost = 1;
+    hydrationSystem(world, map, custom);
+    expect(Hydration.value[eid]).toBeCloseTo(4);
   });
 });

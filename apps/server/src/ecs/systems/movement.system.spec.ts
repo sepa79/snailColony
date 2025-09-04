@@ -8,12 +8,8 @@ import type {
   Structure,
   TerrainType,
 } from '@snail/protocol';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-
-const params = JSON.parse(
-  readFileSync(join(__dirname, '../../../config/parameters.json'), 'utf-8')
-);
+import baseParams from '../../config';
+const params = JSON.parse(JSON.stringify(baseParams));
 
 function makeMap(terrain: string): MapDef {
   return {
@@ -70,5 +66,14 @@ describe('movementSystem', () => {
     const { world, eid } = setup(1, 0);
     movementSystem(world, map, params);
     expect(Position.x[eid]).toBeCloseTo(1 + params.slime.speed_bonus_max);
+  });
+
+  it('uses modified parameter values', () => {
+    const map = makeMap('grass');
+    const custom = JSON.parse(JSON.stringify(baseParams));
+    custom.terrain.grass.base_speed = 2;
+    const { world, eid } = setup(1, 0);
+    movementSystem(world, map, custom);
+    expect(Position.x[eid]).toBeCloseTo(2);
   });
 });
