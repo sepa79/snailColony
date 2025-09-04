@@ -2,10 +2,29 @@
   "width": 2,
   "height": 2,
   "version": 1,
+  "moisture": 50,
   "tiles": [
-    { "terrain": "Dirt", "water": "None", "grass": "None", "structure": "None" },
-    { "terrain": "ShallowWaterBed", "water": "Full", "grass": "None", "structure": "Bridge" },
+    {
+      "terrain": "Dirt",
+      "water": "None",
+      "grass": "None",
+      "structure": "None",
+      "resources": { "biomass": 5 }
+    },
+    {
+      "terrain": "ShallowWaterBed",
+      "water": "Full",
+      "grass": "None",
+      "structure": "Bridge",
+      "resources": { "water": 10 }
+    },
     { "terrain": "Cliff", "water": "None", "grass": "None", "structure": "None" },
-    { "terrain": "Rock", "water": "None", "grass": "Sparse", "structure": "None" }
+    {
+      "terrain": "Rock",
+      "water": "None",
+      "grass": "Sparse",
+      "structure": "None",
+      "resources": { "biomass": 2 }
+    }
   ]
 }

@@ -39,6 +39,10 @@ export interface Tile {
   water: WaterLayer;
   grass: GrassLayer;
   structure: Structure;
+  resources?: {
+    biomass?: number;
+    water?: number;
+  };
 }
 
 export interface MapDef {
@@ -46,6 +50,7 @@ export interface MapDef {
   height: number;
   tiles: Tile[];
   version: number;
+  moisture: number;
 }
 
 export type ServerMessage =
