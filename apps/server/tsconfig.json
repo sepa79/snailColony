@@ -11,9 +11,6 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": "./",
-    "paths": {
-      "@snail/protocol": ["../../libs/protocol/src"]
-    },
     "incremental": true,
     "strict": true,
     "skipLibCheck": true
