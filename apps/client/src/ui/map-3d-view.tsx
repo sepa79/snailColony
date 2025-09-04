@@ -144,6 +144,19 @@ export function Map3DView({ map }: Map3DViewProps) {
           colony.position.set(x, 0.15, y);
           scene.add(colony);
         }
+
+        if (tile.slime_intensity > 0) {
+          const slimeMat = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: Math.min(1, tile.slime_intensity),
+          });
+          const slimeGeom = new THREE.PlaneGeometry(1, 1);
+          const slime = new THREE.Mesh(slimeGeom, slimeMat);
+          slime.rotation.x = -Math.PI / 2;
+          slime.position.set(x, 0.06, y);
+          scene.add(slime);
+        }
       }
     }
 

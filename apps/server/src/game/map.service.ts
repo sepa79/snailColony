@@ -22,6 +22,7 @@ export class MapService {
       parsed.moisture = parsed.moisture ?? defaultMoisture;
       parsed.tiles = parsed.tiles.map((t) => ({
         ...t,
+        slime_intensity: t.slime_intensity ?? 0,
         resources: {
           biomass: t.resources?.biomass ?? params.resources?.biomass ?? 0,
           water: t.resources?.water ?? params.resources?.water ?? 0,
@@ -77,6 +78,9 @@ export function validateTile(tile: Tile) {
   }
   if (tile.structure === 'Bridge' && tile.water !== 'Full') {
     throw new Error('Bridge must be on Water:Full');
+  }
+  if (tile.slime_intensity < 0) {
+    throw new Error('Slime intensity cannot be negative');
   }
   if (tile.resources) {
     if (tile.resources.biomass !== undefined && tile.resources.biomass < 0) {

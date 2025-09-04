@@ -27,6 +27,7 @@ function makeMap(terrain: string): MapDef {
         water: 'None' as WaterLayer,
         grass: 'None' as GrassLayer,
         structure: 'None' as Structure,
+        slime_intensity: 0,
       },
     ],
   } as unknown as MapDef;
@@ -61,5 +62,13 @@ describe('movementSystem', () => {
     movementSystem(w2, sidewalkMap, params);
     expect(Position.x[e1]).toBeCloseTo(1.0);
     expect(Position.x[e2]).toBeCloseTo(0.6);
+  });
+
+  it('applies slime speed bonus', () => {
+    const map = makeMap('grass');
+    map.tiles[0].slime_intensity = 1;
+    const { world, eid } = setup(1, 0);
+    movementSystem(world, map, params);
+    expect(Position.x[eid]).toBeCloseTo(1 + params.slime.speed_bonus_max);
   });
 });

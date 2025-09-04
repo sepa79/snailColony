@@ -22,6 +22,7 @@ describe('MapService', () => {
       water: WaterLayer.None,
       grass: GrassLayer.None,
       structure: Structure.Colony,
+      slime_intensity: 0,
     };
     expect(() => validateTile(bad)).toThrow();
   });
@@ -32,6 +33,7 @@ describe('MapService', () => {
     expect(map.moisture).toBeGreaterThanOrEqual(0);
     expect(map.tiles[0].resources?.biomass).toBe(5);
     expect(map.tiles[1].resources?.water).toBe(10);
+    expect(map.tiles[0].slime_intensity).toBe(0);
   });
 
   it('detects invalid resources and moisture', () => {
@@ -40,6 +42,7 @@ describe('MapService', () => {
       water: WaterLayer.None,
       grass: GrassLayer.None,
       structure: Structure.None,
+      slime_intensity: 0,
       resources: { biomass: -1 },
     };
     expect(() => validateTile(tile)).toThrow();
@@ -52,6 +55,7 @@ describe('MapService', () => {
           water: WaterLayer.None,
           grass: GrassLayer.None,
           structure: Structure.None,
+          slime_intensity: 0,
         },
       ],
       version: 1,
