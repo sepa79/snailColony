@@ -7,10 +7,13 @@ import { join } from 'path';
 export class MapService {
   private cache?: MapDef;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   load(roomId: string): MapDef {
+    void roomId;
     if (!this.cache) {
       const candidatePaths = [
+        join(process.cwd(), 'config', 'parameters.json'),
+        join(__dirname, '../../config/parameters.json'),
+        join(__dirname, '../../../config/parameters.json'),
         join(__dirname, '../../../../config/parameters.json'),
         join(__dirname, '../../../../../config/parameters.json'),
       ];
