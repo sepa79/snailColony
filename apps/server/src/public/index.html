@@ -20,6 +20,7 @@
     <input id="roomId" placeholder="Room ID" />
     <button id="startBtn">Start</button>
     <button id="loadBtn">Load</button>
+    <button id="redrawBtn">Redraw Map</button>
   </div>
   <div id="map"></div>
     <h2>State</h2>
@@ -83,15 +84,18 @@
       ws.onopen = () => log(sysLogs, 'WebSocket connected');
       ws.onclose = () => log(sysLogs, 'WebSocket closed');
       ws.onerror = () => log(sysLogs, 'WebSocket error');
-      let mapLoaded = false;
+      let latestMap;
+      document.getElementById('redrawBtn').onclick = () => {
+        if (latestMap) window.initMapView(latestMap);
+      };
       ws.onmessage = (ev) => {
         stateEl.textContent = ev.data;
         log(inLogs, ev.data);
         try {
           const msg = JSON.parse(ev.data);
-          if (msg.t === 'RoomState' && !mapLoaded) {
-            mapLoaded = true;
-            window.initMapView(msg.map);
+          if (msg.t === 'RoomState') {
+            latestMap = msg.map;
+            if (!window.mapApp) window.initMapView(latestMap);
           }
         } catch {}
       };

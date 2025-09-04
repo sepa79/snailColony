@@ -42,10 +42,18 @@ function drawDiamond(g, x, y, w = TILE_W, h = TILE_H) {
 
 window.initMapView = function (map) {
   const container = document.getElementById('map');
+  // clear previous render, if any
+  container.innerHTML = '';
+  if (window.mapApp) {
+    window.mapApp.destroy(true, { children: true, texture: true, baseTexture: true });
+    window.mapApp = undefined;
+  }
   const app = new PIXI.Application({ background: 0x222222, resizeTo: container });
   container.appendChild(app.view);
   const camera = new PIXI.Container();
   app.stage.addChild(camera);
+  // expose the app so callers can detect if a map has been drawn
+  window.mapApp = app;
 
   const terrainLayers = {};
   Object.keys(terrainColors).forEach((t) => {
