@@ -5,6 +5,7 @@
 - [ ] Validation prevents illegal combos (`Cliff` + `Structure`, `Water:Full` + `Colony`, etc.).
 - [ ] Functions: `moveCost(tile)`, `isBlocked(tile)`, `hydrationDrain(tile)` with unit tests.
 - [x] Protocol includes `MapDef` and `mapVersion`; client can join and receive it once.
+- [x] Server dashboard renders `MapDef` on a 2D map.
 
 ## Client — Isometric 2D
 - [x] Renders a 15×15 map from `MapDef` using diamond tiles.
