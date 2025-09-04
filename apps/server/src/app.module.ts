@@ -3,6 +3,8 @@ import { GatewayModule } from './ws/gateway.module';
 import { HealthController } from './rest/health.controller';
 import { LobbyController } from './rest/lobby.controller';
 import { UiController } from './rest/ui.controller';
+import { MapController } from './rest/map.controller';
+import { MapService } from './game/map.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -14,7 +16,7 @@ import { join } from 'path';
     }),
     GatewayModule,
   ],
-  controllers: [HealthController, LobbyController, UiController],
-  providers: [],
+  controllers: [HealthController, LobbyController, UiController, MapController],
+  providers: [MapService],
 })
 export class AppModule {}

@@ -2,17 +2,16 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 RUN npm install -g pnpm
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json pnpm-workspace.yaml .npmrc ./
 COPY apps ./apps
 COPY libs ./libs
 RUN pnpm install
-RUN pnpm --filter @snail/server... build
+RUN pnpm --filter @snail/server build
+RUN pnpm --filter @snail/server deploy --prod server-deploy
 
 # Run the compiled server
 FROM node:20-alpine
 WORKDIR /app
-COPY apps/server/package.json package.json
-COPY --from=build /app/apps/server/dist ./dist
-RUN npm install --omit=dev
+COPY --from=build /app/server-deploy .
 EXPOSE 3000
 CMD ["node", "dist/main.js"]

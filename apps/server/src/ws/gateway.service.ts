@@ -7,7 +7,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, WebSocket } from 'ws';
 import { World } from '../ecs/world';
-import { ClientCommand, ServerMessage } from './messages';
+import { ClientCommand, ServerMessage, MapDef } from '@snail/protocol';
+import { MapService } from '../game/map.service';
 
 @WebSocketGateway({ path: '/ws' })
 export class GameGateway
@@ -18,6 +19,11 @@ export class GameGateway
 
   private world = new World();
   private interval?: NodeJS.Timer;
+  private map: MapDef;
+
+  constructor(private readonly maps: MapService) {
+    this.map = this.maps.load('default');
+  }
 
   afterInit() {
     this.interval = setInterval(() => {
@@ -36,6 +42,13 @@ export class GameGateway
   }
 
   handleConnection(client: WebSocket) {
+    const init: ServerMessage = {
+      t: 'RoomState',
+      map: this.map,
+      entities: this.world.snapshot(),
+    };
+    client.send(JSON.stringify(init));
+
     client.on('message', (raw) => {
       const cmd = JSON.parse(raw.toString()) as ClientCommand;
       if (cmd.t === 'Ping') {
