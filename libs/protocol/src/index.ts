@@ -39,6 +39,7 @@ export interface Tile {
   water: WaterLayer;
   grass: GrassLayer;
   structure: Structure;
+  slime_intensity: number;
   resources?: {
     biomass?: number;
     water?: number;

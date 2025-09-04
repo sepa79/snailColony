@@ -68,8 +68,9 @@ window.initMapView = function (map) {
   const waterLayer = new PIXI.Container();
   const grassLayer = new PIXI.Container();
   const structureLayer = new PIXI.Container();
+  const slimeLayer = new PIXI.Container();
   const resourceLayer = new PIXI.Container();
-  camera.addChild(waterLayer, grassLayer, structureLayer);
+  camera.addChild(waterLayer, grassLayer, structureLayer, slimeLayer);
 
   for (let y = 0; y < map.height; y++) {
     for (let x = 0; x < map.width; x++) {
@@ -113,6 +114,14 @@ window.initMapView = function (map) {
         sg.x += TILE_W / 4;
         sg.y += TILE_H / 4;
         structureLayer.addChild(sg);
+      }
+
+      if (tile.slime_intensity > 0) {
+        const sl = new PIXI.Graphics();
+        sl.beginFill(0xff0000, Math.min(1, tile.slime_intensity));
+        drawDiamond(sl, px, py);
+        sl.endFill();
+        slimeLayer.addChild(sl);
       }
 
       if (tile.resources) {

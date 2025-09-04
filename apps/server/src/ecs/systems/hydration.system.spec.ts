@@ -27,6 +27,7 @@ function makeMap(terrain: string, water?: number): MapDef {
         water: 'None' as WaterLayer,
         grass: 'None' as GrassLayer,
         structure: 'None' as Structure,
+        slime_intensity: 0,
         resources: water ? { water } : undefined,
       },
     ],
@@ -67,5 +68,15 @@ describe('hydrationSystem', () => {
     hydrationSystem(world, map, params);
     expect(Hydration.value[eid]).toBeCloseTo(0);
     expect(hasComponent(world, Dead, eid)).toBe(true);
+  });
+
+  it('slime reduces hydration cost', () => {
+    const map = makeMap('gravel');
+    map.tiles[0].slime_intensity = 1;
+    const { world, eid } = setup(map, 5, 1, 0);
+    hydrationSystem(world, map, params);
+    const base = params.terrain.gravel.hydration_cost;
+    const expected = 5 - base * (1 - params.slime.hydration_save_max);
+    expect(Hydration.value[eid]).toBeCloseTo(expected);
   });
 });
