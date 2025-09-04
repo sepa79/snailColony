@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { EntityStatus } from './ui/entity-status';
-import { LogConsole } from './ui/log-console';
+import { LogConsole, LogEntry } from './ui/log-console';
 
 type StateMessage = {
   t: 'State';
@@ -8,22 +8,40 @@ type StateMessage = {
 };
 
 export function App() {
-  const [url, setUrl] = useState('ws://localhost:3000');
+  const [url, setUrl] = useState('localhost:3000');
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [snapshot, setSnapshot] = useState<StateMessage | null>(null);
-  const [inLogs, setInLogs] = useState<string[]>([]);
-  const [outLogs, setOutLogs] = useState<string[]>([]);
-  const [systemLogs, setSystemLogs] = useState<string[]>([]);
+  const [inLogs, setInLogs] = useState<LogEntry[]>([]);
+  const [outLogs, setOutLogs] = useState<LogEntry[]>([]);
+  const [systemLogs, setSystemLogs] = useState<LogEntry[]>([]);
+
+  const log = (
+    setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
+  ) =>
+    (msg: string) =>
+      setter((l) => [...l, { ts: Date.now(), msg }]);
+
+  const logIn = log(setInLogs);
+  const logOut = log(setOutLogs);
+  const logSys = log(setSystemLogs);
 
   const connect = () => {
-    setSystemLogs((l) => [...l, `Connecting to ${url}`]);
-    setOutLogs((l) => [...l, `WS connect ${url}`]);
-    const ws = new WebSocket(url);
-    ws.onopen = () => setSystemLogs((l) => [...l, 'WebSocket opened']);
-    ws.onclose = () => setSystemLogs((l) => [...l, 'Connection closed']);
-    ws.onerror = () => setSystemLogs((l) => [...l, 'WebSocket error']);
+    let target = url;
+    if (!target.includes('://')) {
+      target = `ws://${target}`;
+    }
+    if (!target.endsWith('/ws')) {
+      target = target.replace(/\/?$/, '/ws');
+    }
+    setUrl(target);
+    logSys(`Connecting to ${target}`);
+    logOut(`WS connect ${target}`);
+    const ws = new WebSocket(target);
+    ws.onopen = () => logSys('WebSocket opened');
+    ws.onclose = () => logSys('Connection closed');
+    ws.onerror = () => logSys('WebSocket error');
     ws.onmessage = (ev) => {
-      setInLogs((l) => [...l, ev.data]);
+      logIn(ev.data);
       const msg = JSON.parse(ev.data) as StateMessage | { t: string };
       if (msg.t === 'State') {
         setSnapshot(msg);

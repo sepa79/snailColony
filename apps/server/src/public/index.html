@@ -45,7 +45,8 @@
 
       function log(el, msg) {
         const line = document.createElement('div');
-        line.textContent = msg;
+        const time = new Date().toLocaleTimeString();
+        line.textContent = `[${time}] ${msg}`;
         el.appendChild(line);
         el.scrollTop = el.scrollHeight;
       }
