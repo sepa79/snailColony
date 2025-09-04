@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.5] - 2025-09-04
+### Fixed
+- Corrected server dashboard to load map renderer from `/ui`, ensuring the map initializes.
+
 ## [0.1.4] - 2025-09-04
 ### Added
 - Map protocol with terrain tiles and room state snapshot.

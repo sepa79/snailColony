@@ -2,16 +2,17 @@ import { useState } from 'react';
 import { useLatency } from './net/use-latency';
 import { EntityStatus } from './ui/entity-status';
 import { LogConsole, LogEntry } from './ui/log-console';
-
-type StateMessage = {
-  t: 'State';
-  entities: { id: number; x: number; y: number; hydration: number }[];
-};
+import { MapView } from './ui/map-view';
+import { MapDef, ServerMessage } from '@snail/protocol';
 
 export function App() {
   const [url, setUrl] = useState('localhost:3000');
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [snapshot, setSnapshot] = useState<StateMessage | null>(null);
+  const [snapshot, setSnapshot] = useState<{
+    t: 'State';
+    entities: { id: number; x: number; y: number; hydration: number }[];
+  } | null>(null);
+  const [map, setMap] = useState<MapDef | null>(null);
   const [inLogs, setInLogs] = useState<LogEntry[]>([]);
   const [outLogs, setOutLogs] = useState<LogEntry[]>([]);
   const [systemLogs, setSystemLogs] = useState<LogEntry[]>([]);
@@ -44,8 +45,11 @@ export function App() {
     ws.onerror = () => logSys('WebSocket error');
     ws.onmessage = (ev) => {
       logIn(ev.data);
-      const msg = JSON.parse(ev.data) as StateMessage | { t: string };
-      if (msg.t === 'State') {
+      const msg = JSON.parse(ev.data) as ServerMessage;
+      if (msg.t === 'RoomState') {
+        setMap(msg.map);
+        setSnapshot({ t: 'State', entities: msg.entities });
+      } else if (msg.t === 'State') {
         setSnapshot(msg);
       }
     };
@@ -73,16 +77,29 @@ export function App() {
           )}
         </div>
       )}
-      {snapshot && snapshot.entities[0] && (
-        <div className="mt-4">
-          <EntityStatus
-            x={snapshot.entities[0].x}
-            y={snapshot.entities[0].y}
-            hydration={snapshot.entities[0].hydration}
+      <div className="mt-4 flex">
+        {map && (
+          <div className="flex-1">
+            <MapView map={map} />
+          </div>
+        )}
+        <div className="ml-4 w-64">
+          {snapshot && snapshot.entities[0] && (
+            <div className="mb-4">
+              <EntityStatus
+                x={snapshot.entities[0].x}
+                y={snapshot.entities[0].y}
+                hydration={snapshot.entities[0].hydration}
+              />
+            </div>
+          )}
+          <LogConsole
+            inLogs={inLogs}
+            outLogs={outLogs}
+            systemLogs={systemLogs}
           />
         </div>
-      )}
-      <LogConsole inLogs={inLogs} outLogs={outLogs} systemLogs={systemLogs} />
+      </div>
     </div>
   );
 }

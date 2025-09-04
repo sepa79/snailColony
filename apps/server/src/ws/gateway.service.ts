@@ -60,6 +60,13 @@ export class GameGateway
         client.send(JSON.stringify(pong));
       } else if (cmd.t === 'Move') {
         this.world.setVelocity(cmd.dx, cmd.dy);
+      } else if (cmd.t === 'RequestRoomState') {
+        const init: ServerMessage = {
+          t: 'RoomState',
+          map: this.map,
+          entities: this.world.snapshot(),
+        };
+        client.send(JSON.stringify(init));
       }
     });
   }
