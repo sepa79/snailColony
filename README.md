@@ -23,6 +23,20 @@ A **3D View** button switches to a Three.js scene where the map is rendered as v
 
 The server also serves a lightweight dashboard at http://localhost:3000/ui for viewing state, launching simple game actions, and displaying the same isometric map renderer used by the client. A **Redraw Map** button requests the latest room state from the server and refreshes the view.
 
+## Testing
+
+Run the server unit tests, including the ECS system specs, with:
+
+```bash
+pnpm --filter @snail/server test
+```
+
+To execute the full test suite across all packages:
+
+```bash
+pnpm test
+```
+
 ## Documentation
 
 - [CHANGELOG](CHANGELOG.md)
