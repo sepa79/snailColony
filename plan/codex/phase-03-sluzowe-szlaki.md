@@ -6,7 +6,7 @@ Wprowadzić mapę śluzu `I∈[0..1]` per komórka, depozycję w ruchu i parowan
 ## Wymagania
 - Każda komórka przechowuje `slime_intensity` (float 0..1).
 - Depozycja: przy każdym kroku Workera `I += deposit_rate`, z capem do 1.0.
-- Parowanie: co tick `I -= decay_rate(terrain, moisture)` według `plan/config/parameters.json`.
+- Parowanie: co tick `I -= decay_rate(terrain, moisture)` według `apps/server/config/parameters.json`.
 - Wpływ na ruch/hydration:
   - `speed = base_speed * (1 + speed_bonus_max * f_terrain * I)`
   - `hydration_cost = base_cost * (1 - hydration_save_max * f_terrain * I)` (tylko na twardych polach).
