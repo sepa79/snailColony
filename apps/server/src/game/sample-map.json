@@ -1,0 +1,11 @@
+{
+  "width": 2,
+  "height": 2,
+  "version": 1,
+  "tiles": [
+    { "terrain": "Dirt", "water": "None", "grass": "None", "structure": "None" },
+    { "terrain": "ShallowWaterBed", "water": "Full", "grass": "None", "structure": "Bridge" },
+    { "terrain": "Cliff", "water": "None", "grass": "None", "structure": "None" },
+    { "terrain": "Rock", "water": "None", "grass": "Sparse", "structure": "None" }
+  ]
+}
