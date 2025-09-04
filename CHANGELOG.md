@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2025-09-04
+### Added
+- Reusable log console for IN/OUT/System messages with timestamps in client and server UIs.
+- Entity status component showing coordinates and hydration.
+### Changed
+- Normalize WebSocket URL to ensure scheme and /ws suffix.
+- Timestamp server dashboard logs.
+
 ## [0.1.2] - 2025-09-04
 ### Added
 - Basic server dashboard UI served at /ui with lobby controls and real-time state updates.

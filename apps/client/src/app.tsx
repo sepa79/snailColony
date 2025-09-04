@@ -1,11 +1,52 @@
 import { useState } from 'react';
+import { EntityStatus } from './ui/entity-status';
+import { LogConsole, LogEntry } from './ui/log-console';
+
+type StateMessage = {
+  t: 'State';
+  entities: { id: number; x: number; y: number; hydration: number }[];
+};
 
 export function App() {
-  const [url, setUrl] = useState('ws://localhost:3000');
+  const [url, setUrl] = useState('localhost:3000');
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [snapshot, setSnapshot] = useState<StateMessage | null>(null);
+  const [inLogs, setInLogs] = useState<LogEntry[]>([]);
+  const [outLogs, setOutLogs] = useState<LogEntry[]>([]);
+  const [systemLogs, setSystemLogs] = useState<LogEntry[]>([]);
+
+  const log = (
+    setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
+  ) =>
+    (msg: string) =>
+      setter((l) => [...l, { ts: Date.now(), msg }]);
+
+  const logIn = log(setInLogs);
+  const logOut = log(setOutLogs);
+  const logSys = log(setSystemLogs);
 
   const connect = () => {
-    const ws = new WebSocket(url);
+    let target = url;
+    if (!target.includes('://')) {
+      target = `ws://${target}`;
+    }
+    if (!target.endsWith('/ws')) {
+      target = target.replace(/\/?$/, '/ws');
+    }
+    setUrl(target);
+    logSys(`Connecting to ${target}`);
+    logOut(`WS connect ${target}`);
+    const ws = new WebSocket(target);
+    ws.onopen = () => logSys('WebSocket opened');
+    ws.onclose = () => logSys('Connection closed');
+    ws.onerror = () => logSys('WebSocket error');
+    ws.onmessage = (ev) => {
+      logIn(ev.data);
+      const msg = JSON.parse(ev.data) as StateMessage | { t: string };
+      if (msg.t === 'State') {
+        setSnapshot(msg);
+      }
+    };
     setSocket(ws);
   };
 
@@ -23,6 +64,16 @@ export function App() {
         </button>
       </div>
       {socket && <p className="text-green-700">Connected</p>}
+      {snapshot && snapshot.entities[0] && (
+        <div className="mt-4">
+          <EntityStatus
+            x={snapshot.entities[0].x}
+            y={snapshot.entities[0].y}
+            hydration={snapshot.entities[0].hydration}
+          />
+        </div>
+      )}
+      <LogConsole inLogs={inLogs} outLogs={outLogs} systemLogs={systemLogs} />
     </div>
   );
 }
