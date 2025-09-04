@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MapDef, Tile } from '@snail/protocol';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 @Injectable()
@@ -10,10 +10,15 @@ export class MapService {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   load(roomId: string): MapDef {
     if (!this.cache) {
-      const paramsRaw = readFileSync(
-        join(__dirname, '../../../../plan/config/parameters.json'),
-        'utf-8',
-      );
+      const candidatePaths = [
+        join(__dirname, '../../../../config/parameters.json'),
+        join(__dirname, '../../../../../config/parameters.json'),
+      ];
+      const paramsPath = candidatePaths.find((p) => existsSync(p));
+      if (!paramsPath) {
+        throw new Error('parameters.json not found');
+      }
+      const paramsRaw = readFileSync(paramsPath, 'utf-8');
       const params = JSON.parse(paramsRaw) as {
         moisture?: { thresholds?: { wet?: number } };
         resources?: { biomass?: number; water?: number };
