@@ -13,7 +13,7 @@ Dostarczyć minimalny model mapy parku:
   - **Biomass nodes** (liście/ściółka) — liczba jednostek do zebrania (regeneracja poza MVP).
   - **Water nodes** (rosa) — punkt odnowy Hydration oraz źródło „wody” do magazynu.
 - Dodaj globalny stan **moisture**: `wet/damp/dry` (prosty timer lub wartość procentowa).
-- Ustaw wartości domyślne z `config/parameters.json`.
+- Ustaw wartości domyślne z `apps/server/config/parameters.json`.
 
 ## Kryteria akceptacji
 - Mogę odpytać mapę i dostać typ terenu i obecność zasobu dla dowolnej komórki.

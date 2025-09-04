@@ -35,7 +35,7 @@ export class MapService {
 }
 
 function findParametersPath(): string {
-  const roots = [process.cwd(), __dirname];
+  const roots = [__dirname, process.cwd()];
   for (const start of roots) {
     for (let dir = start; ; ) {
       const candidate = join(dir, 'config', 'parameters.json');
