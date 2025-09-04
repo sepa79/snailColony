@@ -19,5 +19,5 @@
     "@typescript-eslint/parser": "^6.19.0",
     "concurrently": "^9.0.0"
   },
-  "version": "0.1.1"
+  "version": "0.1.2"
 }
