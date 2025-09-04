@@ -3,6 +3,7 @@ import { useLatency } from './net/use-latency';
 import { EntityStatus } from './ui/entity-status';
 import { LogConsole, LogEntry } from './ui/log-console';
 import { MapView } from './ui/map-view';
+import { Map3DView } from './ui/map-3d-view';
 import { MapDef, ServerMessage } from '@snail/protocol';
 
 export function App() {
@@ -17,6 +18,7 @@ export function App() {
   const [outLogs, setOutLogs] = useState<LogEntry[]>([]);
   const [systemLogs, setSystemLogs] = useState<LogEntry[]>([]);
   const latency = useLatency(socket);
+  const [voxel, setVoxel] = useState(false);
 
   const log = (
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
@@ -68,6 +70,14 @@ export function App() {
         <button className="bg-blue-500 text-white px-2" onClick={connect}>
           Connect
         </button>
+        {map && (
+          <button
+            className="bg-purple-500 text-white px-2 ml-2"
+            onClick={() => setVoxel((v) => !v)}
+          >
+            {voxel ? '2D View' : '3D View'}
+          </button>
+        )}
       </div>
       {socket && (
         <div>
@@ -80,7 +90,7 @@ export function App() {
       <div className="mt-4 flex">
         {map && (
           <div className="flex-1">
-            <MapView map={map} />
+            {voxel ? <Map3DView map={map} /> : <MapView map={map} />}
           </div>
         )}
         <div className="ml-4 w-64">

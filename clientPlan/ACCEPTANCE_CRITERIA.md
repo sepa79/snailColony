@@ -14,9 +14,9 @@
 - [x] Performance: terrain cached (no per-frame rebuild).
 
 ## Client — Voxels 3D (optional)
-- [ ] Same `MapDef` rendered as voxels.
-- [ ] `Water:Full` as a blocking translucent volume; `Bridge` visible.
-- [ ] **G/W/Space/R** shortcuts work.
+- [x] Same `MapDef` rendered as voxels.
+- [x] `Water:Full` as a blocking translucent volume; `Bridge` visible.
+- [x] **G/W/Space/R** shortcuts work.
 
 ## Docs
 - [x] README updated; phase PRs reference this spec.
