@@ -42,6 +42,11 @@ const structureColors: Record<Structure, number> = {
   [Structure.Bridge]: 0x8b4513,
 };
 
+const resourceColors = {
+  biomass: 0x00ff00,
+  water: 0x1e90ff,
+};
+
 interface MapViewProps {
   map: MapDef;
 }
@@ -77,6 +82,7 @@ export function MapView({ map }: MapViewProps) {
     const waterLayer = new PIXI.Container();
     const grassLayer = new PIXI.Container();
     const structureLayer = new PIXI.Container();
+    const resourceLayer = new PIXI.Container();
     camera.addChild(waterLayer, grassLayer, structureLayer);
 
     for (let y = 0; y < map.height; y++) {
@@ -122,6 +128,23 @@ export function MapView({ map }: MapViewProps) {
           sg.y += TILE_H / 4;
           structureLayer.addChild(sg);
         }
+
+        if (tile.resources) {
+          if (tile.resources.biomass) {
+            const bg = new PIXI.Graphics();
+            bg.beginFill(resourceColors.biomass);
+            bg.drawCircle(px + TILE_W / 4, py + TILE_H / 4, 5);
+            bg.endFill();
+            resourceLayer.addChild(bg);
+          }
+          if (tile.resources.water) {
+            const wg = new PIXI.Graphics();
+            wg.beginFill(resourceColors.water);
+            wg.drawCircle(px + (3 * TILE_W) / 4, py + TILE_H / 4, 5);
+            wg.endFill();
+            resourceLayer.addChild(wg);
+          }
+        }
       }
     }
 
@@ -129,6 +152,8 @@ export function MapView({ map }: MapViewProps) {
       layer.cacheAsBitmap = true;
       camera.addChild(layer);
     });
+
+    camera.addChild(resourceLayer);
 
     const grid = new PIXI.Graphics();
     grid.lineStyle(1, 0xffffff, 0.3);
