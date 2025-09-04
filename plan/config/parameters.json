@@ -1,0 +1,113 @@
+{
+  "terrain": {
+    "grass": {
+      "base_speed": 1.0,
+      "hydration_cost": 0.0,
+      "slime_weight": 0.25
+    },
+    "leaf_litter": {
+      "base_speed": 0.9,
+      "hydration_cost": 0.0,
+      "slime_weight": 0.25
+    },
+    "moss": {
+      "base_speed": 1.05,
+      "hydration_cost": 0.0,
+      "slime_weight": 0.25
+    },
+    "gravel": {
+      "base_speed": 0.8,
+      "hydration_cost": 0.2,
+      "slime_weight": 0.7
+    },
+    "sidewalk": {
+      "base_speed": 0.6,
+      "hydration_cost": 0.8,
+      "slime_weight": 1.0
+    }
+  },
+  "moisture": {
+    "thresholds": {
+      "wet": 60,
+      "damp": 30,
+      "dry": 0
+    },
+    "sidewalk_dry_speed": 0.35,
+    "sidewalk_dry_hydration_cost": 1.2
+  },
+  "slime": {
+    "deposit_rate_per_step": 0.15,
+    "speed_bonus_max": 0.4,
+    "hydration_save_max": 0.5,
+    "decay_per_tick": {
+      "wet": {
+        "grass": 0.004,
+        "sidewalk": 0.008,
+        "gravel": 0.006,
+        "leaf_litter": 0.004,
+        "moss": 0.004
+      },
+      "damp": {
+        "grass": 0.007,
+        "sidewalk": 0.015,
+        "gravel": 0.01,
+        "leaf_litter": 0.007,
+        "moss": 0.006
+      },
+      "dry": {
+        "grass": 0.012,
+        "sidewalk": 0.03,
+        "gravel": 0.02,
+        "leaf_litter": 0.012,
+        "moss": 0.01
+      }
+    }
+  },
+  "unit_worker": {
+    "carry_capacity": 5,
+    "hydration_max": 12
+  },
+  "colony": {
+    "build_cost": {
+      "biomass": 30,
+      "water": 20
+    },
+    "build_time_seconds": 30
+  },
+  "upkeep": {
+    "interval_seconds": 10,
+    "base": {
+      "water": 2,
+      "biomass": 1
+    },
+    "colony": {
+      "water": 1,
+      "biomass": 1
+    },
+    "aura": {
+      "radius": 5,
+      "slime_decay_multiplier": 0.5,
+      "hydration_cost_hard_multiplier": 0.5,
+      "speed_bonus": 0.1,
+      "production_time_multiplier": 0.8
+    },
+    "dormant_collapse_seconds": 60
+  },
+  "goal": {
+    "type": "colonize_and_sustain",
+    "colonies_required": 3,
+    "sustain_minutes": 5,
+    "active_min_stock_any": 10
+  },
+  "simulation": {
+    "tick_rate_hz": 10,
+    "order": [
+      "update_moisture_and_auras",
+      "slime_decay",
+      "unit_movement_and_slime_deposit",
+      "gather_and_deliver",
+      "upkeep_tick_if_due",
+      "check_goal"
+    ]
+  }
+}
