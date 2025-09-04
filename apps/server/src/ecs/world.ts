@@ -2,13 +2,22 @@ import { IWorld, addComponent, addEntity, createWorld } from 'bitecs';
 import { Hydration, Position, Velocity, Worker, initWorker } from './components';
 import { movementSystem } from './systems/movement.system';
 import { hydrationSystem } from './systems/hydration.system';
+import { slimeDepositSystem } from './systems/slime-deposit.system';
+import { slimeDecaySystem } from './systems/slime-decay.system';
 import { MapService } from '../game/map.service';
 import { MapDef } from '@snail/protocol';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
 interface Params {
-  terrain: Record<string, { base_speed: number; hydration_cost: number }>;
+  terrain: Record<string, { base_speed: number; hydration_cost: number; slime_weight: number }>;
+  moisture: { thresholds: { wet: number; damp: number } };
+  slime: {
+    deposit_rate_per_step: number;
+    speed_bonus_max: number;
+    hydration_save_max: number;
+    decay_per_tick: Record<string, Record<string, number>>;
+  };
 }
 
 export class World {
@@ -38,8 +47,16 @@ export class World {
   }
 
   tick() {
+    slimeDecaySystem(this.world, this.map, {
+      slime: { decay_per_tick: this.params.slime.decay_per_tick },
+      moisture: this.params.moisture,
+    });
     movementSystem(this.world, this.map, this.params);
     hydrationSystem(this.world, this.map, this.params);
+    slimeDepositSystem(this.world, this.map, {
+      deposit_rate_per_step: this.params.slime.deposit_rate_per_step,
+      terrain: this.params.terrain,
+    });
   }
 
   snapshot() {
