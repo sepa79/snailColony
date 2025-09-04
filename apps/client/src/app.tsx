@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLatency } from './net/use-latency';
 import { EntityStatus } from './ui/entity-status';
 import { LogConsole, LogEntry } from './ui/log-console';
 
@@ -14,6 +15,7 @@ export function App() {
   const [inLogs, setInLogs] = useState<LogEntry[]>([]);
   const [outLogs, setOutLogs] = useState<LogEntry[]>([]);
   const [systemLogs, setSystemLogs] = useState<LogEntry[]>([]);
+  const latency = useLatency(socket);
 
   const log = (
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
@@ -63,7 +65,14 @@ export function App() {
           Connect
         </button>
       </div>
-      {socket && <p className="text-green-700">Connected</p>}
+      {socket && (
+        <div>
+          <p className="text-green-700">Connected</p>
+          {latency !== null && (
+            <p className="text-sm text-gray-700">Latency: {latency} ms</p>
+          )}
+        </div>
+      )}
       {snapshot && snapshot.entities[0] && (
         <div className="mt-4">
           <EntityStatus
