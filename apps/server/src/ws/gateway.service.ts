@@ -5,6 +5,7 @@ import {
   OnGatewayDisconnect,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { Logger, LogLevel } from '@nestjs/common';
 import { Server, WebSocket } from 'ws';
 import { World } from '../ecs/world';
 import { ClientCommand, ServerMessage } from './messages';
@@ -18,6 +19,18 @@ export class GameGateway
 
   private world = new World();
   private interval?: NodeJS.Timer;
+  private readonly logger = new Logger(GameGateway.name);
+
+  constructor() {
+    const level = process.env.LOG_LEVEL as LogLevel | undefined;
+    if (level) {
+      const levels: LogLevel[] = ['error', 'warn', 'log', 'debug', 'verbose'];
+      const index = levels.indexOf(level);
+      if (index !== -1) {
+        Logger.overrideLogger(levels.slice(0, index + 1));
+      }
+    }
+  }
 
   afterInit() {
     this.interval = setInterval(() => {
@@ -27,6 +40,10 @@ export class GameGateway
         entities: this.world.snapshot(),
       };
       const payload = JSON.stringify(state);
+      const first = state.entities[0];
+      this.logger.debug(
+        `Broadcasting state: ${state.entities.length} entities; first at (${first?.x}, ${first?.y})`,
+      );
       this.server.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
           client.send(payload);
@@ -36,8 +53,10 @@ export class GameGateway
   }
 
   handleConnection(client: WebSocket) {
+    this.logger.log('Client connected');
     client.on('message', (raw) => {
       const cmd = JSON.parse(raw.toString()) as ClientCommand;
+      this.logger.debug(`Processing command: ${cmd.t} ${JSON.stringify(cmd)}`);
       if (cmd.t === 'Ping') {
         const pong: ServerMessage = {
           t: 'Pong',
@@ -51,5 +70,7 @@ export class GameGateway
     });
   }
 
-  handleDisconnect() {}
+  handleDisconnect() {
+    this.logger.log('Client disconnected');
+  }
 }
