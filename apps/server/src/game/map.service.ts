@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MapDef, Tile } from '@snail/protocol';
 import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
 
 @Injectable()
 export class MapService {
@@ -10,17 +10,7 @@ export class MapService {
   load(roomId: string): MapDef {
     void roomId;
     if (!this.cache) {
-      const candidatePaths = [
-        join(process.cwd(), 'config', 'parameters.json'),
-        join(__dirname, '../../config/parameters.json'),
-        join(__dirname, '../../../config/parameters.json'),
-        join(__dirname, '../../../../config/parameters.json'),
-        join(__dirname, '../../../../../config/parameters.json'),
-      ];
-      const paramsPath = candidatePaths.find((p) => existsSync(p));
-      if (!paramsPath) {
-        throw new Error('parameters.json not found');
-      }
+      const paramsPath = findParametersPath();
       const paramsRaw = readFileSync(paramsPath, 'utf-8');
       const params = JSON.parse(paramsRaw) as {
         moisture?: { thresholds?: { wet?: number } };
@@ -42,6 +32,24 @@ export class MapService {
     }
     return this.cache;
   }
+}
+
+function findParametersPath(): string {
+  const roots = [process.cwd(), __dirname];
+  for (const start of roots) {
+    for (let dir = start; ; ) {
+      const candidate = join(dir, 'config', 'parameters.json');
+      if (existsSync(candidate)) {
+        return candidate;
+      }
+      const parent = dirname(dir);
+      if (parent === dir) {
+        break;
+      }
+      dir = parent;
+    }
+  }
+  throw new Error('parameters.json not found');
 }
 
 export function validateMap(map: MapDef) {
