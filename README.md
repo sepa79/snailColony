@@ -19,7 +19,7 @@ Access the client at http://localhost/ and connect to a server via WebSocket URL
 an isometric map is rendered using PixiJS. Use arrow keys or drag to pan the camera. Press **G** to
 toggle grid lines and **W** to enable or disable simple water animation.
 
-The server also serves a lightweight dashboard at http://localhost:3000/ui for viewing state, launching simple game actions, and displaying the same isometric map renderer used by the client. A **Redraw Map** button allows the map to be re-rendered if needed.
+The server also serves a lightweight dashboard at http://localhost:3000/ui for viewing state, launching simple game actions, and displaying the same isometric map renderer used by the client. A **Redraw Map** button requests the latest room state from the server and refreshes the view.
 
 ## Documentation
 

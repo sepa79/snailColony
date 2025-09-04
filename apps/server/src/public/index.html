@@ -86,7 +86,7 @@
       ws.onerror = () => log(sysLogs, 'WebSocket error');
       let latestMap;
       document.getElementById('redrawBtn').onclick = () => {
-        if (latestMap) window.initMapView(latestMap);
+        ws.send(JSON.stringify({ t: 'RequestRoomState' }));
       };
       ws.onmessage = (ev) => {
         stateEl.textContent = ev.data;
@@ -95,7 +95,7 @@
           const msg = JSON.parse(ev.data);
           if (msg.t === 'RoomState') {
             latestMap = msg.map;
-            if (!window.mapApp) window.initMapView(latestMap);
+            window.initMapView(latestMap);
           }
         } catch {}
       };
