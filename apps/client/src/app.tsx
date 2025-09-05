@@ -9,12 +9,6 @@ import { MapDef, ServerMessage } from '@snail/protocol';
 export function App() {
   const [url, setUrl] = useState('localhost:3000');
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [rooms, setRooms] = useState<{
-    id: string;
-    players: number;
-    started: boolean;
-  }[]>([]);
-  const [room, setRoom] = useState('');
   const [snapshot, setSnapshot] = useState<{
     t: 'State';
     entities: { id: number; x: number; y: number; hydration: number }[];
@@ -25,6 +19,7 @@ export function App() {
   const [systemLogs, setSystemLogs] = useState<LogEntry[]>([]);
   const latency = useLatency(socket);
   const [voxel, setVoxel] = useState(false);
+  const [ready, setReady] = useState(false);
 
   const log = (
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
@@ -49,9 +44,9 @@ export function App() {
     const ws = new WebSocket(target);
     ws.onopen = () => {
       logSys('WebSocket opened');
-      const list = { t: 'ListRooms' } as const;
-      logOut(JSON.stringify(list));
-      ws.send(JSON.stringify(list));
+      const join = { t: 'Join' } as const;
+      logOut(JSON.stringify(join));
+      ws.send(JSON.stringify(join));
     };
     ws.onclose = () => logSys('Connection closed');
     ws.onerror = () => logSys('WebSocket error');
@@ -63,27 +58,18 @@ export function App() {
         setSnapshot({ t: 'State', entities: msg.entities });
       } else if (msg.t === 'State') {
         setSnapshot(msg);
-      } else if (msg.t === 'RoomsList') {
-        setRooms(msg.rooms);
-        if (msg.rooms.length && !room) setRoom(msg.rooms[0].id);
       }
     };
     setSocket(ws);
     return () => ws.close();
   }, [url]);
 
-  const refreshRooms = () => {
+  const toggleReady = () => {
     if (!socket) return;
-    const list = { t: 'ListRooms' } as const;
-    logOut(JSON.stringify(list));
-    socket.send(JSON.stringify(list));
-  };
-
-  const join = () => {
-    if (!socket) return;
-    const joinMsg = { t: 'JoinRoom', roomId: room } as const;
-    logOut(JSON.stringify(joinMsg));
-    socket.send(JSON.stringify(joinMsg));
+    const cmd = { t: 'SetReady', ready: !ready } as const;
+    logOut(JSON.stringify(cmd));
+    socket.send(JSON.stringify(cmd));
+    setReady((r) => !r);
   };
 
   return (
@@ -95,32 +81,12 @@ export function App() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        {rooms.length > 0 && (
-          <select
-            className="border p-1 mr-2"
-            value={room}
-            onChange={(e) => setRoom(e.target.value)}
-          >
-            {rooms.map((r) => (
-              <option key={r.id} value={r.id}>
-                {r.id} ({r.players}{r.started ? '*' : ''})
-              </option>
-            ))}
-          </select>
-        )}
         <button
-          className="bg-gray-300 px-2 mr-2"
-          onClick={refreshRooms}
+          className="bg-green-500 text-white px-2 mr-2"
+          onClick={toggleReady}
           disabled={!socket}
         >
-          Refresh
-        </button>
-        <button
-          className="bg-blue-500 text-white px-2"
-          onClick={join}
-          disabled={!room}
-        >
-          Join
+          {ready ? 'Unready' : 'Ready'}
         </button>
         {map && (
           <button

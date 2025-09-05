@@ -1,8 +1,7 @@
 export type ClientCommand =
   | { t: 'Ping'; nonce: number }
   | { t: 'Move'; dx: number; dy: number }
-  | { t: 'JoinRoom'; roomId: string }
-  | { t: 'ListRooms' }
+  | { t: 'Join' }
   | { t: 'SetReady'; ready: boolean };
 
 export enum TerrainType {
@@ -111,8 +110,4 @@ export type ServerMessage =
   | {
       t: 'State';
       entities: { id: number; x: number; y: number; hydration: number }[];
-    }
-  | {
-      t: 'RoomsList';
-      rooms: { id: string; players: number; started: boolean }[];
     };

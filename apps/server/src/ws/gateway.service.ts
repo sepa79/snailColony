@@ -20,8 +20,8 @@ export class GameGateway
 
   private interval?: NodeJS.Timer;
   private map: MapDef;
-  private clientInfo = new Map<WebSocket, { roomId: string; playerId: string }>();
-  private roomClients = new Map<string, Set<WebSocket>>();
+  private clientInfo = new Map<WebSocket, { playerId: string }>();
+  private clients = new Set<WebSocket>();
 
   constructor(
     private readonly maps: MapService,
@@ -32,21 +32,19 @@ export class GameGateway
 
   afterInit() {
     this.interval = setInterval(() => {
-      for (const room of this.rooms.listRooms()) {
-        if (!room.started) continue;
-        room.world.tick();
-        const state: ServerMessage = {
-          t: 'State',
-          entities: room.world.snapshot(),
-        };
-        const payload = JSON.stringify(state);
-        const clients = this.roomClients.get(room.id);
-        clients?.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(payload);
-          }
-        });
-      }
+      const room = this.rooms.getRoom('lobby');
+      if (!room || !room.started) return;
+      room.world.tick();
+      const state: ServerMessage = {
+        t: 'State',
+        entities: room.world.snapshot(),
+      };
+      const payload = JSON.stringify(state);
+      this.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(payload);
+        }
+      });
     }, 100);
   }
 
@@ -63,16 +61,13 @@ export class GameGateway
       } else if (cmd.t === 'Move') {
         const info = this.clientInfo.get(client);
         if (!info) return;
-        const room = this.rooms.getRoom(info.roomId);
+        const room = this.rooms.getRoom('lobby');
         room?.world.setVelocity(cmd.dx, cmd.dy);
-      } else if (cmd.t === 'JoinRoom') {
+      } else if (cmd.t === 'Join') {
         const playerId = Math.random().toString(36).slice(2);
-        const room = this.rooms.joinRoom(cmd.roomId, playerId);
-        this.clientInfo.set(client, { roomId: cmd.roomId, playerId });
-        if (!this.roomClients.has(cmd.roomId)) {
-          this.roomClients.set(cmd.roomId, new Set());
-        }
-        this.roomClients.get(cmd.roomId)!.add(client);
+        const room = this.rooms.joinRoom('lobby', playerId);
+        this.clientInfo.set(client, { playerId });
+        this.clients.add(client);
         const init: ServerMessage = {
           t: 'RoomState',
           map: this.map,
@@ -83,24 +78,16 @@ export class GameGateway
       } else if (cmd.t === 'SetReady') {
         const info = this.clientInfo.get(client);
         if (!info) return;
-        this.rooms.setReady(info.roomId, info.playerId, cmd.ready);
-        const room = this.rooms.getRoom(info.roomId);
+        this.rooms.setReady('lobby', info.playerId, cmd.ready);
+        const room = this.rooms.getRoom('lobby');
         if (
           room &&
           !room.started &&
           room.players.size > 0 &&
           [...room.players.values()].every((p) => p.ready)
         ) {
-          this.rooms.startGame(info.roomId);
+          this.rooms.startGame('lobby');
         }
-      } else if (cmd.t === 'ListRooms') {
-        const rooms = this.rooms.listRooms().map((r) => ({
-          id: r.id,
-          players: r.players.size,
-          started: r.started,
-        }));
-        const msg: ServerMessage = { t: 'RoomsList', rooms };
-        client.send(JSON.stringify(msg));
       }
     });
   }
@@ -108,12 +95,8 @@ export class GameGateway
   handleDisconnect(client: WebSocket) {
     const info = this.clientInfo.get(client);
     if (!info) return;
-    this.rooms.leaveRoom(info.roomId, info.playerId);
+    this.rooms.leaveRoom('lobby', info.playerId);
     this.clientInfo.delete(client);
-    const set = this.roomClients.get(info.roomId);
-    set?.delete(client);
-    if (set && set.size === 0) {
-      this.roomClients.delete(info.roomId);
-    }
+    this.clients.delete(client);
   }
 }
