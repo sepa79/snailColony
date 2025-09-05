@@ -1,6 +1,13 @@
 import { RoomService } from './room.service';
 
 describe('RoomService', () => {
+  it('initializes with a lobby room', () => {
+    const svc = new RoomService();
+    svc.onModuleInit();
+    const rooms = svc.listRooms().map((r) => r.id);
+    expect(rooms).toContain('lobby');
+  });
+
   it('creates rooms and tracks join/leave', () => {
     const svc = new RoomService();
     const room = svc.createRoom('r1');

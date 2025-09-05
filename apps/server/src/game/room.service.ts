@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { World } from '../ecs/world';
 
 interface PlayerState {
@@ -14,8 +14,12 @@ interface RoomState {
 }
 
 @Injectable()
-export class RoomService {
+export class RoomService implements OnModuleInit {
   private rooms = new Map<string, RoomState>();
+
+  onModuleInit(): void {
+    this.createRoom('lobby');
+  }
 
   createRoom(id: string): RoomState {
     if (this.rooms.has(id)) {
