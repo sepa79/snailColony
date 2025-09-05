@@ -12,8 +12,8 @@ export class MapController {
   @Get(':roomId')
   getMap(@Param('roomId') roomId: string) {
     const room = this.rooms.getRoom(roomId);
-    if (!room || !room.started) {
-      throw new BadRequestException('Game not started');
+    if (!room) {
+      throw new BadRequestException('Room not found');
     }
     return this.maps.load(roomId);
   }
