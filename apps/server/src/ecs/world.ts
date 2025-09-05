@@ -1,29 +1,26 @@
 import { IWorld, addComponent, addEntity, createWorld } from 'bitecs';
-import { Hydration, Position, Velocity, Worker, initWorker } from './components';
+import {
+  Hydration,
+  Position,
+  Velocity,
+  Worker,
+  initWorker,
+} from './components';
 import { movementSystem } from './systems/movement.system';
 import { hydrationSystem } from './systems/hydration.system';
 import { slimeDepositSystem } from './systems/slime-deposit.system';
 import { slimeDecaySystem } from './systems/slime-decay.system';
+import { scoringSystem, ScoreState } from './systems/scoring.system';
 import { MapService } from '../game/map.service';
-import { MapDef } from '@snail/protocol';
+import { MapDef, GameParams } from '@snail/protocol';
 import params from '../config';
-
-interface Params {
-  terrain: Record<string, { base_speed: number; hydration_cost: number; slime_weight: number }>;
-  moisture: { thresholds: { wet: number; damp: number } };
-  slime: {
-    deposit_rate_per_step: number;
-    speed_bonus_max: number;
-    hydration_save_max: number;
-    decay_per_tick: Record<string, Record<string, number>>;
-  };
-}
 
 export class World {
   private world: IWorld;
   private snail: number;
   private map: MapDef;
-  private params: Params;
+  private params: GameParams;
+  private score: ScoreState;
 
   constructor() {
     this.world = createWorld();
@@ -40,7 +37,8 @@ export class World {
     Hydration.value[this.snail] = 100;
     const svc = new MapService();
     this.map = svc.load('test');
-    this.params = params as Params;
+    this.params = params as GameParams;
+    this.score = { sustainTicks: 0, colonies: new Set(), activeColonies: 0 };
   }
 
   tick() {
@@ -54,6 +52,17 @@ export class World {
       deposit_rate_per_step: this.params.slime.deposit_rate_per_step,
       terrain: this.params.terrain,
     });
+    scoringSystem(
+      this.world,
+      {
+        colonies_required: this.params.goal.colonies_required,
+        sustain_minutes: this.params.goal.sustain_minutes,
+        active_min_stock_any: this.params.goal.active_min_stock_any,
+        tick_rate_hz: this.params.simulation.tick_rate_hz,
+        starting_base: undefined,
+      },
+      this.score,
+    );
   }
 
   snapshot() {
@@ -70,6 +79,19 @@ export class World {
   setVelocity(dx: number, dy: number) {
     Velocity.dx[this.snail] = dx;
     Velocity.dy[this.snail] = dy;
+  }
+
+  goalProgress() {
+    return {
+      active: this.score.activeColonies,
+      required: this.params.goal.colonies_required,
+      sustain_seconds: this.score.sustainTicks / this.params.simulation.tick_rate_hz,
+      sustain_required: this.params.goal.sustain_minutes * 60,
+    };
+  }
+
+  goalResult() {
+    return this.score.result;
   }
 }
 

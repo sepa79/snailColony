@@ -45,6 +45,32 @@ export class GameGateway
           client.send(payload);
         }
       });
+
+      const progress = room.world.goalProgress();
+      const progressMsg: ServerMessage = {
+        t: 'GoalProgress',
+        active: progress.active,
+        required: progress.required,
+        sustain_seconds: progress.sustain_seconds,
+        sustain_required: progress.sustain_required,
+      };
+      const progressPayload = JSON.stringify(progressMsg);
+      this.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(progressPayload);
+        }
+      });
+
+      const result = room.world.goalResult();
+      if (result) {
+        const resultMsg: ServerMessage = { t: 'GoalResult', result };
+        const resultPayload = JSON.stringify(resultMsg);
+        this.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(resultPayload);
+          }
+        });
+      }
     }, 100);
   }
 
