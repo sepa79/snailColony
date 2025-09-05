@@ -79,6 +79,14 @@ export class GameGateway
           params,
         };
         client.send(JSON.stringify(init));
+      } else if (cmd.t === 'ListRooms') {
+        const rooms = this.rooms.listRooms().map((r) => ({
+          id: r.id,
+          players: r.players.size,
+          started: r.started,
+        }));
+        const msg: ServerMessage = { t: 'RoomsList', rooms };
+        client.send(JSON.stringify(msg));
       }
     });
   }

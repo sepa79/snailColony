@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLatency } from './net/use-latency';
 import { EntityStatus } from './ui/entity-status';
 import { LogConsole, LogEntry } from './ui/log-console';
@@ -9,7 +9,11 @@ import { MapDef, ServerMessage } from '@snail/protocol';
 export function App() {
   const [url, setUrl] = useState('localhost:3000');
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [rooms, setRooms] = useState<string[]>([]);
+  const [rooms, setRooms] = useState<{
+    id: string;
+    players: number;
+    started: boolean;
+  }[]>([]);
   const [room, setRoom] = useState('');
   const [snapshot, setSnapshot] = useState<{
     t: 'State';
@@ -32,21 +36,7 @@ export function App() {
   const logOut = log(setOutLogs);
   const logSys = log(setSystemLogs);
 
-  const fetchRooms = async () => {
-    let target = url;
-    if (!target.includes('://')) {
-      target = `http://${target}`;
-    }
-    if (target.endsWith('/ws')) {
-      target = target.replace(/\/ws$/, '');
-    }
-    const res = await fetch(`${target}/lobby/rooms`);
-    const data = (await res.json()) as { rooms: string[] };
-    setRooms(data.rooms);
-    if (data.rooms.length && !room) setRoom(data.rooms[0]);
-  };
-
-  const connect = () => {
+  useEffect(() => {
     let target = url;
     if (!target.includes('://')) {
       target = `ws://${target}`;
@@ -59,9 +49,9 @@ export function App() {
     const ws = new WebSocket(target);
     ws.onopen = () => {
       logSys('WebSocket opened');
-      const join = { t: 'JoinRoom', roomId: room } as const;
-      logOut(JSON.stringify(join));
-      ws.send(JSON.stringify(join));
+      const list = { t: 'ListRooms' } as const;
+      logOut(JSON.stringify(list));
+      ws.send(JSON.stringify(list));
     };
     ws.onclose = () => logSys('Connection closed');
     ws.onerror = () => logSys('WebSocket error');
@@ -73,9 +63,20 @@ export function App() {
         setSnapshot({ t: 'State', entities: msg.entities });
       } else if (msg.t === 'State') {
         setSnapshot(msg);
+      } else if (msg.t === 'RoomsList') {
+        setRooms(msg.rooms);
+        if (msg.rooms.length && !room) setRoom(msg.rooms[0].id);
       }
     };
     setSocket(ws);
+    return () => ws.close();
+  }, [url]);
+
+  const join = () => {
+    if (!socket) return;
+    const joinMsg = { t: 'JoinRoom', roomId: room } as const;
+    logOut(JSON.stringify(joinMsg));
+    socket.send(JSON.stringify(joinMsg));
   };
 
   return (
@@ -87,12 +88,6 @@ export function App() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <button
-          className="bg-green-500 text-white px-2 mr-2"
-          onClick={fetchRooms}
-        >
-          Load Rooms
-        </button>
         {rooms.length > 0 && (
           <select
             className="border p-1 mr-2"
@@ -100,15 +95,15 @@ export function App() {
             onChange={(e) => setRoom(e.target.value)}
           >
             {rooms.map((r) => (
-              <option key={r} value={r}>
-                {r}
+              <option key={r.id} value={r.id}>
+                {r.id} ({r.players}{r.started ? '*' : ''})
               </option>
             ))}
           </select>
         )}
         <button
           className="bg-blue-500 text-white px-2"
-          onClick={connect}
+          onClick={join}
           disabled={!room}
         >
           Join
