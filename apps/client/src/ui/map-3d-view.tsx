@@ -40,6 +40,11 @@ const structureColors: Record<Structure, number> = {
   [Structure.Bridge]: 0x8b4513,
 };
 
+const resourceColors = {
+  biomass: 0x00ff00,
+  water: 0x1e90ff,
+};
+
 interface Map3DViewProps {
   map: MapDef;
 }
@@ -84,6 +89,9 @@ export function Map3DView({ map }: Map3DViewProps) {
     scene.add(grid);
 
     const waterMeshes: THREE.Mesh[] = [];
+    const slimeMeshes: THREE.Mesh[] = [];
+    const resourceGroup = new THREE.Group();
+    scene.add(resourceGroup);
 
     const terrainGeom = new THREE.BoxGeometry(1, 0.1, 1);
     const waterThin = new THREE.BoxGeometry(1, 0.05, 1);
@@ -156,6 +164,28 @@ export function Map3DView({ map }: Map3DViewProps) {
           slime.rotation.x = -Math.PI / 2;
           slime.position.set(x, 0.06, y);
           scene.add(slime);
+          slimeMeshes.push(slime);
+        }
+
+        if (tile.resources) {
+          if (tile.resources.biomass) {
+            const mat = new THREE.MeshBasicMaterial({
+              color: resourceColors.biomass,
+            });
+            const geom = new THREE.SphereGeometry(0.1, 8, 8);
+            const marker = new THREE.Mesh(geom, mat);
+            marker.position.set(x + 0.25, 0.1, y + 0.25);
+            resourceGroup.add(marker);
+          }
+          if (tile.resources.water) {
+            const mat = new THREE.MeshBasicMaterial({
+              color: resourceColors.water,
+            });
+            const geom = new THREE.SphereGeometry(0.1, 8, 8);
+            const marker = new THREE.Mesh(geom, mat);
+            marker.position.set(x + 0.75, 0.1, y + 0.25);
+            resourceGroup.add(marker);
+          }
         }
       }
     }
@@ -185,6 +215,8 @@ export function Map3DView({ map }: Map3DViewProps) {
     };
     window.addEventListener('resize', onResize);
 
+    let showSlime = true;
+
     const keyHandler = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'g':
@@ -194,6 +226,11 @@ export function Map3DView({ map }: Map3DViewProps) {
         case 'w':
         case 'W':
           animateWater = !animateWater;
+          break;
+        case 's':
+        case 'S':
+          showSlime = !showSlime;
+          slimeMeshes.forEach((m) => (m.visible = showSlime));
           break;
         case ' ':
           paused = !paused;

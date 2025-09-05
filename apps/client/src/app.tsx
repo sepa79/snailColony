@@ -4,7 +4,8 @@ import { EntityStatus } from './ui/entity-status';
 import { LogConsole, LogEntry } from './ui/log-console';
 import { MapView } from './ui/map-view';
 import { Map3DView } from './ui/map-3d-view';
-import { MapDef, ServerMessage } from '@snail/protocol';
+import { HUD } from './ui/hud';
+import { MapDef, ServerMessage, GameParams } from '@snail/protocol';
 
 export function App() {
   const [url, setUrl] = useState('localhost:3000');
@@ -14,9 +15,21 @@ export function App() {
     entities: { id: number; x: number; y: number; hydration: number }[];
   } | null>(null);
   const [map, setMap] = useState<MapDef | null>(null);
+  const [params, setParams] = useState<GameParams | null>(null);
   const [inLogs, setInLogs] = useState<LogEntry[]>([]);
   const [outLogs, setOutLogs] = useState<LogEntry[]>([]);
   const [systemLogs, setSystemLogs] = useState<LogEntry[]>([]);
+  const [upkeepLogs, setUpkeepLogs] = useState<LogEntry[]>([]);
+  const [goalLogs, setGoalLogs] = useState<LogEntry[]>([]);
+  const [inventory, setInventory] = useState<{ water?: number; biomass?: number } | null>(
+    null,
+  );
+  const [goalProgress, setGoalProgress] = useState<{
+    active: number;
+    required: number;
+    sustain_seconds: number;
+    sustain_required: number;
+  } | null>(null);
   const latency = useLatency(socket);
   const [voxel, setVoxel] = useState(false);
   const [ready, setReady] = useState(false);
@@ -35,6 +48,8 @@ export function App() {
   const logIn = log(setInLogs);
   const logOut = log(setOutLogs);
   const logSys = log(setSystemLogs);
+  const logUpkeep = log(setUpkeepLogs);
+  const logGoal = log(setGoalLogs);
 
   const connect = () => {
     let target = url;
@@ -65,8 +80,24 @@ export function App() {
       } else if (msg.t === 'RoomState') {
         setMap(msg.map);
         setSnapshot({ t: 'State', entities: msg.entities });
+        setParams(msg.params);
+        setInventory(msg.params.resources ?? null);
+        logUpkeep(
+          `Base W:${msg.params.resources?.water ?? 0} B:${
+            msg.params.resources?.biomass ?? 0
+          }`,
+        );
       } else if (msg.t === 'State') {
         setSnapshot(msg);
+      } else if (msg.t === 'GoalProgress') {
+        setGoalProgress(msg);
+        logGoal(
+          `Active ${msg.active}/${msg.required} sustain ${msg.sustain_seconds.toFixed(
+            1,
+          )}/${msg.sustain_required}s`,
+        );
+      } else if (msg.t === 'GoalResult') {
+        logGoal(`Result: ${msg.result}`);
       }
     };
     setSocket(ws);
@@ -79,6 +110,11 @@ export function App() {
     setMap(null);
     setSnapshot(null);
     setReady(false);
+    setParams(null);
+    setInventory(null);
+    setGoalProgress(null);
+    setUpkeepLogs([]);
+    setGoalLogs([]);
   };
 
   const toggleReady = () => {
@@ -91,6 +127,7 @@ export function App() {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-2">SnailColony</h1>
+      {map && <HUD inventory={inventory} goal={goalProgress} />}
       <div className="mb-2">
         <input
           className="border p-1 mr-2"
@@ -166,6 +203,16 @@ export function App() {
                 x={snapshot.entities[0].x}
                 y={snapshot.entities[0].y}
                 hydration={snapshot.entities[0].hydration}
+                slimeBonus={(() => {
+                  if (!map || !params) return 0;
+                  const sx = Math.floor(snapshot.entities[0].x);
+                  const sy = Math.floor(snapshot.entities[0].y);
+                  const tile = map.tiles[sy * map.width + sx];
+                  if (!tile) return 0;
+                  return (
+                    tile.slime_intensity * params.slime.speed_bonus_max * 100
+                  );
+                })()}
               />
             </div>
           )}
@@ -173,6 +220,8 @@ export function App() {
             inLogs={inLogs}
             outLogs={outLogs}
             systemLogs={systemLogs}
+            upkeepLogs={upkeepLogs}
+            goalLogs={goalLogs}
           />
         </div>
       </div>
