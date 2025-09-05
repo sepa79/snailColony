@@ -71,7 +71,7 @@
         const map = await res.json();
         initMapView(map);
       } catch (err) {
-        log(sysLogs, 'Map load failed');
+        log(sysLogs, 'Map load failed: ' + (err?.message || err));
       }
     }
 
@@ -92,6 +92,7 @@
       if (res.ok) {
         errorEl.textContent = '';
         log(sysLogs, 'Game started');
+        await loadMap();
       } else {
         const err = await res.json();
         errorEl.textContent = err.message;
