@@ -33,6 +33,7 @@ export class GameGateway
   afterInit() {
     this.interval = setInterval(() => {
       for (const room of this.rooms.listRooms()) {
+        if (!room.started) continue;
         room.world.tick();
         const state: ServerMessage = {
           t: 'State',

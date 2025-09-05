@@ -10,7 +10,6 @@ interface RoomState {
   players: Map<string, PlayerState>;
   started: boolean;
   world: World;
-  interval?: NodeJS.Timeout;
 }
 
 @Injectable()
@@ -42,10 +41,6 @@ export class RoomService {
     if (roomId !== 'lobby') return;
     this.lobby.players.delete(playerId);
     if (this.lobby.players.size === 0) {
-      if (this.lobby.interval) {
-        clearInterval(this.lobby.interval);
-        this.lobby.interval = undefined;
-      }
       this.lobby.started = false;
     }
   }
@@ -74,7 +69,6 @@ export class RoomService {
       throw new Error('Not all players are ready');
     }
     this.lobby.started = true;
-    this.lobby.interval = setInterval(() => this.lobby.world.tick(), 100);
     return this.lobby;
   }
 }

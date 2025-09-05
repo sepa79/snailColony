@@ -24,17 +24,11 @@ describe('RoomService (single lobby)', () => {
   });
 
   it('starts only when all players ready and at least one player exists', () => {
-    jest.useFakeTimers();
-    svc.joinRoom('lobby', 'a');
-    svc.joinRoom('lobby', 'b');
-    svc.setReady('lobby', 'a', true);
     expect(() => svc.startGame('lobby')).toThrow();
-    svc.setReady('lobby', 'b', true);
+    svc.joinRoom('lobby', 'a');
+    expect(() => svc.startGame('lobby')).toThrow();
+    svc.setReady('lobby', 'a', true);
     const room = svc.startGame('lobby');
     expect(room.started).toBe(true);
-    const tickSpy = jest.spyOn(room.world, 'tick');
-    jest.advanceTimersByTime(100);
-    expect(tickSpy).toHaveBeenCalled();
-    jest.useRealTimers();
   });
 });
