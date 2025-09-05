@@ -1,40 +1,36 @@
 import { RoomService } from './room.service';
 
-describe('RoomService', () => {
-  it('initializes with a lobby room', () => {
-    const svc = new RoomService();
-    svc.onModuleInit();
+describe('RoomService (single lobby)', () => {
+  let svc: RoomService;
+
+  beforeEach(() => {
+    svc = new RoomService();
+  });
+
+  it('exposes a persistent lobby', () => {
     const rooms = svc.listRooms().map((r) => r.id);
-    expect(rooms).toContain('lobby');
+    expect(rooms).toEqual(['lobby']);
   });
 
-  it('creates rooms and tracks join/leave', () => {
-    const svc = new RoomService();
-    const room = svc.createRoom('r1');
-    expect(room.id).toBe('r1');
-    svc.joinRoom('r1', 'p1');
-    expect(svc.getRoom('r1')?.players.has('p1')).toBe(true);
-    svc.leaveRoom('r1', 'p1');
-    expect(svc.getRoom('r1')).toBeUndefined();
+  it('tracks players and resets when empty', () => {
+    const room = svc.joinRoom('lobby', 'p1');
+    expect(room.players.has('p1')).toBe(true);
+    svc.setReady('lobby', 'p1', true);
+    svc.startGame('lobby');
+    expect(room.started).toBe(true);
+    svc.leaveRoom('lobby', 'p1');
+    expect(room.started).toBe(false);
+    expect(svc.listRooms().map((r) => r.id)).toEqual(['lobby']);
   });
 
-  it('lists existing rooms', () => {
-    const svc = new RoomService();
-    svc.createRoom('a');
-    svc.createRoom('b');
-    expect(svc.listRooms().map((r) => r.id).sort()).toEqual(['a', 'b']);
-  });
-
-  it('starts game when all players ready', () => {
+  it('starts only when all players ready and at least one player exists', () => {
     jest.useFakeTimers();
-    const svc = new RoomService();
-    svc.createRoom('r1');
-    svc.joinRoom('r1', 'a');
-    svc.joinRoom('r1', 'b');
-    svc.setReady('r1', 'a', true);
-    expect(() => svc.startGame('r1')).toThrow();
-    svc.setReady('r1', 'b', true);
-    const room = svc.startGame('r1');
+    svc.joinRoom('lobby', 'a');
+    svc.joinRoom('lobby', 'b');
+    svc.setReady('lobby', 'a', true);
+    expect(() => svc.startGame('lobby')).toThrow();
+    svc.setReady('lobby', 'b', true);
+    const room = svc.startGame('lobby');
     expect(room.started).toBe(true);
     const tickSpy = jest.spyOn(room.world, 'tick');
     jest.advanceTimersByTime(100);

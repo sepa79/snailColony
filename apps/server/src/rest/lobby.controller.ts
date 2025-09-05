@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { RoomService } from '../game/room.service';
 
 @Controller('lobby')
@@ -7,19 +7,11 @@ export class LobbyController {
 
   @Get('rooms')
   listRooms() {
+    const room = this.rooms.listRooms()[0];
     return {
-      rooms: this.rooms.listRooms().map((r) => ({
-        id: r.id,
-        players: [...r.players.keys()],
-        started: r.started,
-      })),
+      id: room.id,
+      players: [...room.players.keys()],
+      started: room.started,
     };
-  }
-
-  @Post('room')
-  createRoom() {
-    const id = Math.random().toString(36).slice(2);
-    this.rooms.createRoom(id);
-    return { roomId: id };
   }
 }

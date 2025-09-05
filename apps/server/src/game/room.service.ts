@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { World } from '../ecs/world';
 
 interface PlayerState {
@@ -14,59 +14,47 @@ interface RoomState {
 }
 
 @Injectable()
-export class RoomService implements OnModuleInit {
-  private rooms = new Map<string, RoomState>();
-
-  onModuleInit(): void {
-    this.createRoom('lobby');
-  }
-
-  createRoom(id: string): RoomState {
-    if (this.rooms.has(id)) {
-      throw new Error('Room already exists');
-    }
-    const room: RoomState = {
-      id,
-      players: new Map(),
-      started: false,
-      world: new World(),
-    };
-    this.rooms.set(id, room);
-    return room;
-  }
+export class RoomService {
+  private lobby: RoomState = {
+    id: 'lobby',
+    players: new Map(),
+    started: false,
+    world: new World(),
+  };
 
   getRoom(id: string): RoomState | undefined {
-    return this.rooms.get(id);
+    return id === 'lobby' ? this.lobby : undefined;
   }
 
   listRooms(): RoomState[] {
-    return [...this.rooms.values()];
+    return [this.lobby];
   }
 
   joinRoom(roomId: string, playerId: string): RoomState {
-    const room = this.rooms.get(roomId) ?? this.createRoom(roomId);
-    room.players.set(playerId, { ready: false });
-    return room;
+    if (roomId !== 'lobby') {
+      throw new Error('Invalid room');
+    }
+    this.lobby.players.set(playerId, { ready: false });
+    return this.lobby;
   }
 
   leaveRoom(roomId: string, playerId: string): void {
-    const room = this.rooms.get(roomId);
-    if (!room) return;
-    room.players.delete(playerId);
-    if (room.players.size === 0) {
-      if (room.interval) {
-        clearInterval(room.interval);
+    if (roomId !== 'lobby') return;
+    this.lobby.players.delete(playerId);
+    if (this.lobby.players.size === 0) {
+      if (this.lobby.interval) {
+        clearInterval(this.lobby.interval);
+        this.lobby.interval = undefined;
       }
-      this.rooms.delete(roomId);
+      this.lobby.started = false;
     }
   }
 
   setReady(roomId: string, playerId: string, ready: boolean): void {
-    const room = this.rooms.get(roomId);
-    if (!room) {
+    if (roomId !== 'lobby') {
       throw new Error('Room not found');
     }
-    const player = room.players.get(playerId);
+    const player = this.lobby.players.get(playerId);
     if (!player) {
       throw new Error('Player not found');
     }
@@ -74,17 +62,19 @@ export class RoomService implements OnModuleInit {
   }
 
   startGame(roomId: string): RoomState {
-    const room = this.rooms.get(roomId);
-    if (!room) {
+    if (roomId !== 'lobby') {
       throw new Error('Room not found');
     }
-    if (room.started) return room;
-    const allReady = [...room.players.values()].every((p) => p.ready);
+    if (this.lobby.started) return this.lobby;
+    if (this.lobby.players.size === 0) {
+      throw new Error('No players in lobby');
+    }
+    const allReady = [...this.lobby.players.values()].every((p) => p.ready);
     if (!allReady) {
       throw new Error('Not all players are ready');
     }
-    room.started = true;
-    room.interval = setInterval(() => room.world.tick(), 100);
-    return room;
+    this.lobby.started = true;
+    this.lobby.interval = setInterval(() => this.lobby.world.tick(), 100);
+    return this.lobby;
   }
 }
