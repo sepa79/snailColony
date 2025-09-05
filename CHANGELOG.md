@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2025-09-05
+### Added
+- Single persistent lobby with readiness gating before game start
+- Client requires name and offers Ready toggle
+### Changed
+- World ticks only after lobby starts
+- Sample map expanded to 5×5 tiles
+
 ## [0.1.5] - 2025-09-04
 ### Fixed
 - Corrected server dashboard to load map renderer from `/ui`, ensuring the map initializes.
