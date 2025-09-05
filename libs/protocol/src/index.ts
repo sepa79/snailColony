@@ -1,7 +1,8 @@
 export type ClientCommand =
   | { t: 'Ping'; nonce: number }
   | { t: 'Move'; dx: number; dy: number }
-  | { t: 'RequestRoomState' };
+  | { t: 'Join'; name: string }
+  | { t: 'SetReady'; ready: boolean };
 
 export enum TerrainType {
   Dirt = 'Dirt',
@@ -100,6 +101,11 @@ export interface GameParams {
 
 export type ServerMessage =
   | { t: 'Pong'; nonce: number; rtt: number }
+  | {
+      t: 'LobbyState';
+      players: { name: string; ready: boolean }[];
+      started: boolean;
+    }
   | {
       t: 'RoomState';
       map: MapDef;

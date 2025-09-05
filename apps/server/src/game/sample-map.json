@@ -1,39 +1,37 @@
 {
-  "width": 2,
-  "height": 2,
+  "width": 5,
+  "height": 5,
   "version": 1,
   "moisture": 50,
   "tiles": [
-    {
-      "terrain": "Dirt",
-      "water": "None",
-      "grass": "None",
-      "structure": "None",
-      "slime_intensity": 0,
-      "resources": { "biomass": 5 }
-    },
-    {
-      "terrain": "ShallowWaterBed",
-      "water": "Full",
-      "grass": "None",
-      "structure": "Bridge",
-      "slime_intensity": 0,
-      "resources": { "water": 10 }
-    },
-    {
-      "terrain": "Cliff",
-      "water": "None",
-      "grass": "None",
-      "structure": "None",
-      "slime_intensity": 0
-    },
-    {
-      "terrain": "Rock",
-      "water": "None",
-      "grass": "Sparse",
-      "structure": "None",
-      "slime_intensity": 0,
-      "resources": { "biomass": 2 }
-    }
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "ShallowWaterBed", "water": "Full", "grass": "None", "structure": "Bridge", "slime_intensity": 0, "resources": {"water": 10}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}}
   ]
 }
