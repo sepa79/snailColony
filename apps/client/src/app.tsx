@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLatency } from './net/use-latency';
 import { EntityStatus } from './ui/entity-status';
 import { LogConsole, LogEntry } from './ui/log-console';
@@ -20,6 +20,11 @@ export function App() {
   const latency = useLatency(socket);
   const [voxel, setVoxel] = useState(false);
   const [ready, setReady] = useState(false);
+  const [name, setName] = useState('');
+  const [lobby, setLobby] = useState<{
+    players: { name: string; ready: boolean }[];
+    started: boolean;
+  } | null>(null);
 
   const log = (
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
@@ -31,7 +36,7 @@ export function App() {
   const logOut = log(setOutLogs);
   const logSys = log(setSystemLogs);
 
-  useEffect(() => {
+  const connect = () => {
     let target = url;
     if (!target.includes('://')) {
       target = `ws://${target}`;
@@ -44,7 +49,7 @@ export function App() {
     const ws = new WebSocket(target);
     ws.onopen = () => {
       logSys('WebSocket opened');
-      const join = { t: 'Join' } as const;
+      const join = { t: 'Join', name } as const;
       logOut(JSON.stringify(join));
       ws.send(JSON.stringify(join));
     };
@@ -53,7 +58,11 @@ export function App() {
     ws.onmessage = (ev) => {
       logIn(ev.data);
       const msg = JSON.parse(ev.data) as ServerMessage;
-      if (msg.t === 'RoomState') {
+      if (msg.t === 'LobbyState') {
+        setLobby(msg);
+        const me = msg.players.find((p) => p.name === name);
+        setReady(me?.ready ?? false);
+      } else if (msg.t === 'RoomState') {
         setMap(msg.map);
         setSnapshot({ t: 'State', entities: msg.entities });
       } else if (msg.t === 'State') {
@@ -61,15 +70,22 @@ export function App() {
       }
     };
     setSocket(ws);
-    return () => ws.close();
-  }, [url]);
+  };
+
+  const disconnect = () => {
+    socket?.close();
+    setSocket(null);
+    setLobby(null);
+    setMap(null);
+    setSnapshot(null);
+    setReady(false);
+  };
 
   const toggleReady = () => {
     if (!socket) return;
     const cmd = { t: 'SetReady', ready: !ready } as const;
     logOut(JSON.stringify(cmd));
     socket.send(JSON.stringify(cmd));
-    setReady((r) => !r);
   };
 
   return (
@@ -81,10 +97,30 @@ export function App() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
+        <input
+          className="border p-1 mr-2"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button
+          className="bg-blue-500 text-white px-2 mr-2"
+          onClick={connect}
+          disabled={!!socket || !name}
+        >
+          Connect
+        </button>
+        <button
+          className="bg-gray-500 text-white px-2 mr-2"
+          onClick={disconnect}
+          disabled={!socket}
+        >
+          Disconnect
+        </button>
         <button
           className="bg-green-500 text-white px-2 mr-2"
           onClick={toggleReady}
-          disabled={!socket}
+          disabled={!socket || !lobby || lobby.started}
         >
           {ready ? 'Unready' : 'Ready'}
         </button>
@@ -103,6 +139,18 @@ export function App() {
           {latency !== null && (
             <p className="text-sm text-gray-700">Latency: {latency} ms</p>
           )}
+        </div>
+      )}
+      {!map && lobby && !lobby.started && (
+        <div className="mt-4">
+          <h2 className="font-bold">Lobby</h2>
+          <ul className="list-disc ml-5">
+            {lobby.players.map((p) => (
+              <li key={p.name}>
+                {p.name} {p.ready ? '(ready)' : ''}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
       <div className="mt-4 flex">

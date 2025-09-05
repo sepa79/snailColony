@@ -27,7 +27,7 @@ export class GameGateway
     private readonly maps: MapService,
     private readonly rooms: RoomService,
   ) {
-    this.map = this.maps.load('default');
+    this.map = this.maps.load('lobby');
   }
 
   afterInit() {
@@ -48,7 +48,44 @@ export class GameGateway
     }, 100);
   }
 
+  broadcastLobby(target?: WebSocket) {
+    const room = this.rooms.getRoom('lobby');
+    if (!room) return;
+    const lobby: ServerMessage = {
+      t: 'LobbyState',
+      players: [...room.players.entries()].map(([name, p]) => ({
+        name,
+        ready: p.ready,
+      })),
+      started: room.started,
+    };
+    const payload = JSON.stringify(lobby);
+    if (target) {
+      if (target.readyState === WebSocket.OPEN) target.send(payload);
+    } else {
+      this.server.clients.forEach((c) => {
+        if (c.readyState === WebSocket.OPEN) c.send(payload);
+      });
+    }
+  }
+
+  broadcastRoomState() {
+    const room = this.rooms.getRoom('lobby');
+    if (!room) return;
+    const init: ServerMessage = {
+      t: 'RoomState',
+      map: this.map,
+      entities: room.world.snapshot(),
+      params,
+    };
+    const payload = JSON.stringify(init);
+    this.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) client.send(payload);
+    });
+  }
+
   handleConnection(client: WebSocket) {
+    this.broadcastLobby(client);
     client.on('message', (raw) => {
       const text = raw.toString();
       this.server.clients.forEach((c) => {
@@ -68,32 +105,28 @@ export class GameGateway
         const info = this.clientInfo.get(client);
         if (!info) return;
         const room = this.rooms.getRoom('lobby');
-        room?.world.setVelocity(cmd.dx, cmd.dy);
+        if (!room || !room.started) return;
+        room.world.setVelocity(cmd.dx, cmd.dy);
       } else if (cmd.t === 'Join') {
-        const playerId = Math.random().toString(36).slice(2);
-        const room = this.rooms.joinRoom('lobby', playerId);
-        this.clientInfo.set(client, { playerId });
+        if (!cmd.name) return;
+        const room = this.rooms.joinRoom('lobby', cmd.name);
+        this.clientInfo.set(client, { playerId: cmd.name });
         this.clients.add(client);
-        const init: ServerMessage = {
-          t: 'RoomState',
-          map: this.map,
-          entities: room.world.snapshot(),
-          params,
-        };
-        client.send(JSON.stringify(init));
+        this.broadcastLobby();
+        if (room.started) {
+          const init: ServerMessage = {
+            t: 'RoomState',
+            map: this.map,
+            entities: room.world.snapshot(),
+            params,
+          };
+          client.send(JSON.stringify(init));
+        }
       } else if (cmd.t === 'SetReady') {
         const info = this.clientInfo.get(client);
         if (!info) return;
         this.rooms.setReady('lobby', info.playerId, cmd.ready);
-        const room = this.rooms.getRoom('lobby');
-        if (
-          room &&
-          !room.started &&
-          room.players.size > 0 &&
-          [...room.players.values()].every((p) => p.ready)
-        ) {
-          this.rooms.startGame('lobby');
-        }
+        this.broadcastLobby();
       }
     });
   }
@@ -104,5 +137,6 @@ export class GameGateway
     this.rooms.leaveRoom('lobby', info.playerId);
     this.clientInfo.delete(client);
     this.clients.delete(client);
+    this.broadcastLobby();
   }
 }

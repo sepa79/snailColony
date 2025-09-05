@@ -5,5 +5,6 @@ import { RoomService } from '../game/room.service';
 
 @Module({
   providers: [GameGateway, MapService, RoomService],
+  exports: [GameGateway, MapService, RoomService],
 })
 export class GatewayModule {}

@@ -14,7 +14,9 @@
 <body>
   <h1>Snail Colony Server</h1>
   <div>
+    <button id="startBtn">Start Game</button>
     <button id="refreshBtn">Refresh Lobby</button>
+    <span id="error" style="color:red; margin-left:10px;"></span>
   </div>
   <h2>Players</h2>
   <ul id="players"></ul>
@@ -37,6 +39,7 @@
     const outLogs = document.getElementById('outLogs');
     const sysLogs = document.getElementById('sysLogs');
     const playersList = document.getElementById('players');
+    const errorEl = document.getElementById('error');
 
     function log(el, msg) {
       const line = document.createElement('div');
@@ -46,20 +49,39 @@
       el.scrollTop = el.scrollHeight;
     }
 
-    async function refresh() {
-      log(outLogs, 'GET /lobby/rooms');
-      const res = await fetch('/lobby/rooms');
-      const data = await res.json();
+    function renderLobby(data) {
       playersList.innerHTML = '';
       for (const p of data.players) {
         const li = document.createElement('li');
-        li.textContent = p;
+        li.textContent = `${p.name}${p.ready ? ' (ready)' : ''}`;
         playersList.appendChild(li);
       }
     }
 
+    async function refresh() {
+      log(outLogs, 'GET /lobby/rooms');
+      const res = await fetch('/lobby/rooms');
+      const data = await res.json();
+      renderLobby(data);
+    }
+
     document.getElementById('refreshBtn').onclick = refresh;
     refresh();
+
+    async function startGame() {
+      log(outLogs, 'POST /lobby/start');
+      const res = await fetch('/lobby/start', { method: 'POST' });
+      if (res.ok) {
+        errorEl.textContent = '';
+        log(sysLogs, 'Game started');
+      } else {
+        const err = await res.json();
+        errorEl.textContent = err.message;
+        log(sysLogs, 'Start failed: ' + err.message);
+      }
+    }
+
+    document.getElementById('startBtn').onclick = startGame;
 
     const ws = new WebSocket(`ws://${location.host}/ws`);
     ws.onopen = () => log(sysLogs, 'WebSocket connected');
@@ -70,6 +92,8 @@
         const msg = JSON.parse(ev.data);
         if (msg.t === 'Log' && msg.dir === 'IN') {
           log(inLogs, msg.msg);
+        } else if (msg.t === 'LobbyState') {
+          renderLobby(msg);
         }
       } catch {}
     };
