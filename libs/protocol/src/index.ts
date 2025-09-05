@@ -2,7 +2,8 @@ export type ClientCommand =
   | { t: 'Ping'; nonce: number }
   | { t: 'Move'; dx: number; dy: number }
   | { t: 'JoinRoom'; roomId: string }
-  | { t: 'ListRooms' };
+  | { t: 'ListRooms' }
+  | { t: 'SetReady'; ready: boolean };
 
 export enum TerrainType {
   Dirt = 'Dirt',

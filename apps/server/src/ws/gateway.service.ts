@@ -80,6 +80,19 @@ export class GameGateway
           params,
         };
         client.send(JSON.stringify(init));
+      } else if (cmd.t === 'SetReady') {
+        const info = this.clientInfo.get(client);
+        if (!info) return;
+        this.rooms.setReady(info.roomId, info.playerId, cmd.ready);
+        const room = this.rooms.getRoom(info.roomId);
+        if (
+          room &&
+          !room.started &&
+          room.players.size > 0 &&
+          [...room.players.values()].every((p) => p.ready)
+        ) {
+          this.rooms.startGame(info.roomId);
+        }
       } else if (cmd.t === 'ListRooms') {
         const rooms = this.rooms.listRooms().map((r) => ({
           id: r.id,
