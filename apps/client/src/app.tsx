@@ -9,6 +9,8 @@ import { MapDef, ServerMessage } from '@snail/protocol';
 export function App() {
   const [url, setUrl] = useState('localhost:3000');
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [rooms, setRooms] = useState<string[]>([]);
+  const [room, setRoom] = useState('');
   const [snapshot, setSnapshot] = useState<{
     t: 'State';
     entities: { id: number; x: number; y: number; hydration: number }[];
@@ -30,6 +32,20 @@ export function App() {
   const logOut = log(setOutLogs);
   const logSys = log(setSystemLogs);
 
+  const fetchRooms = async () => {
+    let target = url;
+    if (!target.includes('://')) {
+      target = `http://${target}`;
+    }
+    if (target.endsWith('/ws')) {
+      target = target.replace(/\/ws$/, '');
+    }
+    const res = await fetch(`${target}/lobby/rooms`);
+    const data = (await res.json()) as { rooms: string[] };
+    setRooms(data.rooms);
+    if (data.rooms.length && !room) setRoom(data.rooms[0]);
+  };
+
   const connect = () => {
     let target = url;
     if (!target.includes('://')) {
@@ -38,11 +54,15 @@ export function App() {
     if (!target.endsWith('/ws')) {
       target = target.replace(/\/?$/, '/ws');
     }
-    setUrl(target);
     logSys(`Connecting to ${target}`);
     logOut(`WS connect ${target}`);
     const ws = new WebSocket(target);
-    ws.onopen = () => logSys('WebSocket opened');
+    ws.onopen = () => {
+      logSys('WebSocket opened');
+      const join = { t: 'JoinRoom', roomId: room } as const;
+      logOut(JSON.stringify(join));
+      ws.send(JSON.stringify(join));
+    };
     ws.onclose = () => logSys('Connection closed');
     ws.onerror = () => logSys('WebSocket error');
     ws.onmessage = (ev) => {
@@ -67,8 +87,31 @@ export function App() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <button className="bg-blue-500 text-white px-2" onClick={connect}>
-          Connect
+        <button
+          className="bg-green-500 text-white px-2 mr-2"
+          onClick={fetchRooms}
+        >
+          Load Rooms
+        </button>
+        {rooms.length > 0 && (
+          <select
+            className="border p-1 mr-2"
+            value={room}
+            onChange={(e) => setRoom(e.target.value)}
+          >
+            {rooms.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
+        )}
+        <button
+          className="bg-blue-500 text-white px-2"
+          onClick={connect}
+          disabled={!room}
+        >
+          Join
         </button>
         {map && (
           <button

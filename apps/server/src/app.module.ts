@@ -5,6 +5,7 @@ import { LobbyController } from './rest/lobby.controller';
 import { UiController } from './rest/ui.controller';
 import { MapController } from './rest/map.controller';
 import { MapService } from './game/map.service';
+import { RoomService } from './game/room.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -17,6 +18,6 @@ import { join } from 'path';
     GatewayModule,
   ],
   controllers: [HealthController, LobbyController, UiController, MapController],
-  providers: [MapService],
+  providers: [MapService, RoomService],
 })
 export class AppModule {}

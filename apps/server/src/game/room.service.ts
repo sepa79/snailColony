@@ -35,6 +35,10 @@ export class RoomService {
     return this.rooms.get(id);
   }
 
+  listRooms(): RoomState[] {
+    return [...this.rooms.values()];
+  }
+
   joinRoom(roomId: string, playerId: string): RoomState {
     const room = this.rooms.get(roomId) ?? this.createRoom(roomId);
     room.players.set(playerId, { ready: false });

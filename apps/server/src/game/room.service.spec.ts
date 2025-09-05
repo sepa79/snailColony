@@ -11,6 +11,13 @@ describe('RoomService', () => {
     expect(svc.getRoom('r1')).toBeUndefined();
   });
 
+  it('lists existing rooms', () => {
+    const svc = new RoomService();
+    svc.createRoom('a');
+    svc.createRoom('b');
+    expect(svc.listRooms().map((r) => r.id).sort()).toEqual(['a', 'b']);
+  });
+
   it('starts game when all players ready', () => {
     jest.useFakeTimers();
     const svc = new RoomService();

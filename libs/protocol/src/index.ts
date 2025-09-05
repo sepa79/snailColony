@@ -1,7 +1,7 @@
 export type ClientCommand =
   | { t: 'Ping'; nonce: number }
   | { t: 'Move'; dx: number; dy: number }
-  | { t: 'RequestRoomState' };
+  | { t: 'JoinRoom'; roomId: string };
 
 export enum TerrainType {
   Dirt = 'Dirt',
