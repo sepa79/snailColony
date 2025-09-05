@@ -50,7 +50,13 @@ export class GameGateway
 
   handleConnection(client: WebSocket) {
     client.on('message', (raw) => {
-      const cmd = JSON.parse(raw.toString()) as ClientCommand;
+      const text = raw.toString();
+      this.server.clients.forEach((c) => {
+        if (c.readyState === WebSocket.OPEN) {
+          c.send(JSON.stringify({ t: 'Log', dir: 'IN', msg: text }));
+        }
+      });
+      const cmd = JSON.parse(text) as ClientCommand;
       if (cmd.t === 'Ping') {
         const pong: ServerMessage = {
           t: 'Pong',

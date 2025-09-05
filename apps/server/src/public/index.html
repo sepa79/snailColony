@@ -5,9 +5,7 @@
   <title>Snail Colony Server</title>
     <style>
       body { font-family: sans-serif; margin: 20px; }
-      #state { background: #f5f5f5; padding: 10px; border: 1px solid #ccc; height: 200px; overflow: auto; }
       button { margin-right: 5px; }
-      #map { width: 512px; height: 384px; margin-top: 20px; border: 1px solid #ccc; }
       #logs { display: flex; gap: 10px; margin-top: 20px; }
       .log-col { flex: 1; background: #f5f5f5; border: 1px solid #ccc; padding: 5px; height: 150px; overflow: auto; }
       .log-col h3 { margin-top: 0; }
@@ -16,128 +14,65 @@
 <body>
   <h1>Snail Colony Server</h1>
   <div>
-    <button id="createBtn">Create Game</button>
-    <button id="refreshRoomsBtn">Refresh Rooms</button>
-    <input id="roomId" placeholder="Room ID" />
-    <button id="startBtn">Start</button>
-    <button id="loadBtn">Load</button>
-    <button id="redrawBtn">Redraw Map</button>
+    <button id="refreshBtn">Refresh Lobby</button>
   </div>
-  <h2>Rooms</h2>
-  <ul id="rooms"></ul>
   <h2>Players</h2>
   <ul id="players"></ul>
-  <div id="map"></div>
-    <h2>State</h2>
-    <pre id="state"></pre>
-    <div id="logs">
-      <div class="log-col">
-        <h3>IN</h3>
-        <div id="inLogs"></div>
-      </div>
-      <div class="log-col">
-        <h3>OUT</h3>
-        <div id="outLogs"></div>
-      </div>
-      <div class="log-col">
-        <h3>System</h3>
-        <div id="sysLogs"></div>
-      </div>
+  <div id="logs">
+    <div class="log-col">
+      <h3>IN</h3>
+      <div id="inLogs"></div>
     </div>
-    <script src="https://unpkg.com/pixi.js@7.x/dist/pixi.min.js"></script>
-    <script src="/ui/map.js"></script>
-    <script>
-      const stateEl = document.getElementById('state');
-      const roomInput = document.getElementById('roomId');
-      const inLogs = document.getElementById('inLogs');
-      const outLogs = document.getElementById('outLogs');
-      const sysLogs = document.getElementById('sysLogs');
-      const roomsList = document.getElementById('rooms');
-      const playersList = document.getElementById('players');
+    <div class="log-col">
+      <h3>OUT</h3>
+      <div id="outLogs"></div>
+    </div>
+    <div class="log-col">
+      <h3>System</h3>
+      <div id="sysLogs"></div>
+    </div>
+  </div>
+  <script>
+    const inLogs = document.getElementById('inLogs');
+    const outLogs = document.getElementById('outLogs');
+    const sysLogs = document.getElementById('sysLogs');
+    const playersList = document.getElementById('players');
 
-      function log(el, msg) {
-        const line = document.createElement('div');
-        const time = new Date().toLocaleTimeString();
-        line.textContent = `[${time}] ${msg}`;
-        el.appendChild(line);
-        el.scrollTop = el.scrollHeight;
+    function log(el, msg) {
+      const line = document.createElement('div');
+      const time = new Date().toLocaleTimeString();
+      line.textContent = `[${time}] ${msg}`;
+      el.appendChild(line);
+      el.scrollTop = el.scrollHeight;
+    }
+
+    async function refresh() {
+      log(outLogs, 'GET /lobby/rooms');
+      const res = await fetch('/lobby/rooms');
+      const data = await res.json();
+      playersList.innerHTML = '';
+      for (const p of data.players) {
+        const li = document.createElement('li');
+        li.textContent = p;
+        playersList.appendChild(li);
       }
+    }
 
-      async function refreshRooms() {
-        log(outLogs, 'GET /lobby/rooms');
-        const res = await fetch('/lobby/rooms');
-        const data = await res.json();
-        roomsList.innerHTML = '';
-        playersList.innerHTML = '';
-        for (const r of data.rooms) {
-          const li = document.createElement('li');
-          li.textContent = `${r.id} (${r.players.length}${r.started ? '*' : ''})`;
-          li.onclick = () => {
-            roomInput.value = r.id;
-            renderPlayers(r.players);
-          };
-          roomsList.appendChild(li);
-          if (r.id === roomInput.value) {
-            renderPlayers(r.players);
-          }
+    document.getElementById('refreshBtn').onclick = refresh;
+    refresh();
+
+    const ws = new WebSocket(`ws://${location.host}/ws`);
+    ws.onopen = () => log(sysLogs, 'WebSocket connected');
+    ws.onclose = () => log(sysLogs, 'WebSocket closed');
+    ws.onerror = () => log(sysLogs, 'WebSocket error');
+    ws.onmessage = (ev) => {
+      try {
+        const msg = JSON.parse(ev.data);
+        if (msg.t === 'Log' && msg.dir === 'IN') {
+          log(inLogs, msg.msg);
         }
-      }
-
-      function renderPlayers(players) {
-        playersList.innerHTML = '';
-        for (const p of players) {
-          const li = document.createElement('li');
-          li.textContent = p;
-          playersList.appendChild(li);
-        }
-      }
-
-      document.getElementById('createBtn').onclick = async () => {
-        log(outLogs, 'POST /lobby/room');
-        const res = await fetch('/lobby/room', { method: 'POST' });
-        const data = await res.json();
-        roomInput.value = data.roomId;
-        log(sysLogs, `Created room ${data.roomId}`);
-      };
-
-      document.getElementById('startBtn').onclick = async () => {
-        const id = roomInput.value;
-        if (!id) return;
-        log(outLogs, `POST /lobby/room/${id}/start`);
-        await fetch(`/lobby/room/${id}/start`, { method: 'POST' });
-        log(sysLogs, `Start requested for ${id}`);
-      };
-
-      document.getElementById('loadBtn').onclick = async () => {
-        const id = roomInput.value;
-        if (!id) return;
-        log(outLogs, `POST /lobby/room/${id}/load`);
-        await fetch(`/lobby/room/${id}/load`, { method: 'POST' });
-        log(sysLogs, `Load requested for ${id}`);
-      };
-
-      document.getElementById('refreshRoomsBtn').onclick = refreshRooms;
-      refreshRooms();
-
-      const ws = new WebSocket(`ws://${location.host}/ws`);
-      ws.onopen = () => log(sysLogs, 'WebSocket connected');
-      ws.onclose = () => log(sysLogs, 'WebSocket closed');
-      ws.onerror = () => log(sysLogs, 'WebSocket error');
-      let latestMap;
-      document.getElementById('redrawBtn').onclick = () => {
-        ws.send(JSON.stringify({ t: 'RequestRoomState' }));
-      };
-      ws.onmessage = (ev) => {
-        stateEl.textContent = ev.data;
-        log(inLogs, ev.data);
-        try {
-          const msg = JSON.parse(ev.data);
-          if (msg.t === 'RoomState') {
-            latestMap = msg.map;
-            window.initMapView(latestMap);
-          }
-        } catch {}
-      };
-    </script>
-  </body>
+      } catch {}
+    };
+  </script>
+</body>
 </html>
