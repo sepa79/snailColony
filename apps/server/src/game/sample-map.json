@@ -4,7 +4,7 @@
   "version": 1,
   "moisture": 50,
   "tiles": [
-    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
+    {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "Colony", "slime_intensity": 0, "resources": {"biomass": 5}},
     {"terrain": "ShallowWaterBed", "water": "Full", "grass": "None", "structure": "Bridge", "slime_intensity": 0, "resources": {"water": 10}},
     {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
     {"terrain": "Dirt", "water": "None", "grass": "None", "structure": "None", "slime_intensity": 0, "resources": {"biomass": 5}},
