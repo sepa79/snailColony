@@ -115,4 +115,12 @@ export type ServerMessage =
   | {
       t: 'State';
       entities: { id: number; x: number; y: number; hydration: number }[];
-    };
+    }
+  | {
+      t: 'GoalProgress';
+      active: number;
+      required: number;
+      sustain_seconds: number;
+      sustain_required: number;
+    }
+  | { t: 'GoalResult'; result: 'Victory' | 'Defeat' };
