@@ -7,7 +7,13 @@ export class LobbyController {
 
   @Get('rooms')
   listRooms() {
-    return { rooms: this.rooms.listRooms().map((r) => r.id) };
+    return {
+      rooms: this.rooms.listRooms().map((r) => ({
+        id: r.id,
+        players: [...r.players.keys()],
+        started: r.started,
+      })),
+    };
   }
 
   @Post('room')

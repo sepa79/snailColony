@@ -72,6 +72,13 @@ export function App() {
     return () => ws.close();
   }, [url]);
 
+  const refreshRooms = () => {
+    if (!socket) return;
+    const list = { t: 'ListRooms' } as const;
+    logOut(JSON.stringify(list));
+    socket.send(JSON.stringify(list));
+  };
+
   const join = () => {
     if (!socket) return;
     const joinMsg = { t: 'JoinRoom', roomId: room } as const;
@@ -101,6 +108,13 @@ export function App() {
             ))}
           </select>
         )}
+        <button
+          className="bg-gray-300 px-2 mr-2"
+          onClick={refreshRooms}
+          disabled={!socket}
+        >
+          Refresh
+        </button>
         <button
           className="bg-blue-500 text-white px-2"
           onClick={join}

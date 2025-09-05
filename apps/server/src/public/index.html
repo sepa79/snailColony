@@ -17,11 +17,16 @@
   <h1>Snail Colony Server</h1>
   <div>
     <button id="createBtn">Create Game</button>
+    <button id="refreshRoomsBtn">Refresh Rooms</button>
     <input id="roomId" placeholder="Room ID" />
     <button id="startBtn">Start</button>
     <button id="loadBtn">Load</button>
     <button id="redrawBtn">Redraw Map</button>
   </div>
+  <h2>Rooms</h2>
+  <ul id="rooms"></ul>
+  <h2>Players</h2>
+  <ul id="players"></ul>
   <div id="map"></div>
     <h2>State</h2>
     <pre id="state"></pre>
@@ -47,6 +52,8 @@
       const inLogs = document.getElementById('inLogs');
       const outLogs = document.getElementById('outLogs');
       const sysLogs = document.getElementById('sysLogs');
+      const roomsList = document.getElementById('rooms');
+      const playersList = document.getElementById('players');
 
       function log(el, msg) {
         const line = document.createElement('div');
@@ -54,6 +61,35 @@
         line.textContent = `[${time}] ${msg}`;
         el.appendChild(line);
         el.scrollTop = el.scrollHeight;
+      }
+
+      async function refreshRooms() {
+        log(outLogs, 'GET /lobby/rooms');
+        const res = await fetch('/lobby/rooms');
+        const data = await res.json();
+        roomsList.innerHTML = '';
+        playersList.innerHTML = '';
+        for (const r of data.rooms) {
+          const li = document.createElement('li');
+          li.textContent = `${r.id} (${r.players.length}${r.started ? '*' : ''})`;
+          li.onclick = () => {
+            roomInput.value = r.id;
+            renderPlayers(r.players);
+          };
+          roomsList.appendChild(li);
+          if (r.id === roomInput.value) {
+            renderPlayers(r.players);
+          }
+        }
+      }
+
+      function renderPlayers(players) {
+        playersList.innerHTML = '';
+        for (const p of players) {
+          const li = document.createElement('li');
+          li.textContent = p;
+          playersList.appendChild(li);
+        }
       }
 
       document.getElementById('createBtn').onclick = async () => {
@@ -79,6 +115,9 @@
         await fetch(`/lobby/room/${id}/load`, { method: 'POST' });
         log(sysLogs, `Load requested for ${id}`);
       };
+
+      document.getElementById('refreshRoomsBtn').onclick = refreshRooms;
+      refreshRooms();
 
       const ws = new WebSocket(`ws://${location.host}/ws`);
       ws.onopen = () => log(sysLogs, 'WebSocket connected');
