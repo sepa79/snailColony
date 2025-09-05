@@ -7,6 +7,8 @@ interface LogConsoleProps {
   inLogs: LogEntry[];
   outLogs: LogEntry[];
   systemLogs: LogEntry[];
+  upkeepLogs: LogEntry[];
+  goalLogs: LogEntry[];
 }
 
 function LogColumn({ title, logs }: { title: string; logs: LogEntry[] }) {
@@ -34,12 +36,20 @@ function LogColumn({ title, logs }: { title: string; logs: LogEntry[] }) {
   );
 }
 
-export function LogConsole({ inLogs, outLogs, systemLogs }: LogConsoleProps) {
+export function LogConsole({
+  inLogs,
+  outLogs,
+  systemLogs,
+  upkeepLogs,
+  goalLogs,
+}: LogConsoleProps) {
   return (
-    <div className="grid grid-cols-3 gap-4 mt-4">
+    <div className="grid grid-cols-5 gap-4 mt-4">
       <LogColumn title="IN" logs={inLogs} />
       <LogColumn title="OUT" logs={outLogs} />
       <LogColumn title="System" logs={systemLogs} />
+      <LogColumn title="Upkeep" logs={upkeepLogs} />
+      <LogColumn title="Goal" logs={goalLogs} />
     </div>
   );
 }
