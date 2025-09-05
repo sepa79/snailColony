@@ -7,6 +7,11 @@ import type { GameParams } from '../../config';
 interface Params {
   terrain: GameParams['terrain'];
   slime: Pick<GameParams['slime'], 'hydration_save_max'>;
+  aura?: {
+    radius: number;
+    hydration_cost_hard_multiplier: number;
+    bases: { x: number; y: number }[];
+  };
 }
 
 const hydrateQuery = defineQuery([Hydration, Velocity, Position, Worker]);
@@ -22,7 +27,17 @@ export function hydrationSystem(world: IWorld, map: MapDef, params: Params) {
       const tile = tileAt(map, x, y);
       const baseCost = params.terrain?.[terrain ?? '']?.hydration_cost ?? 0;
       const save = (tile?.slime_intensity ?? 0) * (params.slime?.hydration_save_max ?? 0);
-      const cost = baseCost * (1 - save);
+      let cost = baseCost * (1 - save);
+      if (params.aura) {
+        for (const b of params.aura.bases) {
+          const dx = b.x - Position.x[eid];
+          const dy = b.y - Position.y[eid];
+          if (dx * dx + dy * dy <= params.aura.radius * params.aura.radius) {
+            cost *= params.aura.hydration_cost_hard_multiplier;
+            break;
+          }
+        }
+      }
       value = Math.max(0, value - cost);
     }
     if (isWaterNode(map, x, y)) {

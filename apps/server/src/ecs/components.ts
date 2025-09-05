@@ -16,6 +16,11 @@ export const Base = defineComponent({
   water: Types.f32,
 });
 export const BuildTimer = defineComponent({ remaining: Types.f32 });
+export const Upkeep = defineComponent({
+  timer: Types.f32,
+  active: Types.ui8,
+  dormant_time: Types.f32,
+});
 
 export type WorldComponents = {
   position: typeof Position;
@@ -25,6 +30,7 @@ export type WorldComponents = {
   dead: typeof Dead;
   base: typeof Base;
   buildTimer: typeof BuildTimer;
+  upkeep: typeof Upkeep;
 };
 
 import params from '../config';
@@ -40,5 +46,11 @@ export function initWorker(eid: number, baseEid = 0) {
 export function initBase(eid: number) {
   Base.biomass[eid] = 0;
   Base.water[eid] = 0;
+}
+
+export function initUpkeep(eid: number, interval: number) {
+  Upkeep.timer[eid] = interval;
+  Upkeep.active[eid] = 1;
+  Upkeep.dormant_time[eid] = 0;
 }
 
