@@ -6,7 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, WebSocket } from 'ws';
-import { ClientCommand, ServerMessage, MapDef } from '@snail/protocol';
+import { ClientCommand, ServerMessage } from '@snail/protocol';
 import { MapService } from '../game/map.service';
 import { RoomService } from '../game/room.service';
 import params from '../config';
@@ -19,16 +19,13 @@ export class GameGateway
   server!: Server;
 
   private interval?: NodeJS.Timer;
-  private map: MapDef;
   private clientInfo = new Map<WebSocket, { playerId: string }>();
   private clients = new Set<WebSocket>();
 
   constructor(
     private readonly maps: MapService,
     private readonly rooms: RoomService,
-  ) {
-    this.map = this.maps.load('lobby');
-  }
+  ) {}
 
   afterInit() {
     this.interval = setInterval(() => {
@@ -98,9 +95,10 @@ export class GameGateway
   broadcastRoomState() {
     const room = this.rooms.getRoom('lobby');
     if (!room) return;
+    const map = this.maps.load('lobby');
     const init: ServerMessage = {
       t: 'RoomState',
-      map: this.map,
+      map,
       entities: room.world.snapshot(),
       params,
     };
@@ -140,9 +138,10 @@ export class GameGateway
         this.clients.add(client);
         this.broadcastLobby();
         if (room.started) {
+          const map = this.maps.load('lobby');
           const init: ServerMessage = {
             t: 'RoomState',
-            map: this.map,
+            map,
             entities: room.world.snapshot(),
             params,
           };
