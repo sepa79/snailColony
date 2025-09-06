@@ -22,6 +22,7 @@ A **3D View** button switches to a Three.js scene where the map is rendered as v
 **G** toggles the grid, **W** the water ripple, **Space** pauses animation, and **R** resets the camera.
 
 The server also serves a lightweight dashboard at http://localhost:3000/ui for viewing state, launching simple game actions, and displaying the same isometric map renderer used by the client. A **Redraw Map** button requests the latest room state from the server and refreshes the view.
+Debug buttons expose colony and snail panels for inspecting state during development.
 
 ## Testing
 
@@ -43,4 +44,4 @@ pnpm test
 - [PLAN](PLAN.md)
 - [STAGE](STAGE.md)
 
-Current version: 0.1.1
+Current version: 0.1.7
