@@ -21,11 +21,11 @@ export function SnailPanel({ snail, onClose }: SnailPanelProps) {
   ];
 
   return (
-    <div className="min-w-[200px] text-dew">
+    <div>
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg font-bold">{snail.name}</h2>
         <button
-          className="px-2 text-dew hover:text-amber"
+          className="px-2 hover:text-amber"
           onClick={onClose}
           aria-label="Close"
         >
