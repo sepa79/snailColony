@@ -227,7 +227,7 @@ export function App() {
           />
         </div>
       )}
-      <div className="p-4 pt-16 min-h-screen flex flex-col">
+      <div className="p-4 pt-16 h-screen flex flex-col">
         <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
       <div
         className={`mb-2 p-1 text-center ${statusColors[connectionStatus]}`}
