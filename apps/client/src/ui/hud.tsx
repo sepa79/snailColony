@@ -20,9 +20,11 @@ export function HUD({ inventory, goal }: HUDProps) {
   const goalProgress = goal ? goal.sustain_seconds / goal.sustain_required : 0;
 
   return (
-    <Card className="fixed top-2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm space-y-2 min-w-[240px] z-10">
+    <Card
+      className="fixed top-2 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-1rem)] sm:w-auto sm:min-w-[240px] md:min-w-[300px] px-2 sm:px-4 py-2 text-sm flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0"
+    >
       {inventory && (
-        <div className="flex items-center justify-around text-center">
+        <div className="flex items-center justify-around text-center sm:flex-1 sm:justify-center sm:gap-4">
           <div className="flex items-center space-x-1">
             <span className="font-semibold">💧</span>
             <span>{inventory.water ?? 0}</span>
@@ -34,7 +36,7 @@ export function HUD({ inventory, goal }: HUDProps) {
         </div>
       )}
       {goal && (
-        <div className="space-y-1">
+        <div className="space-y-1 sm:flex-1">
           <div className="flex justify-between text-xs">
             <span>
               Colonies {goal.active}/{goal.required}

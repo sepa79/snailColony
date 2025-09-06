@@ -261,7 +261,9 @@ export function App() {
       {map && <HUD inventory={inventory} goal={goalProgress} />}
 
       {activePanel && (
-        <Card className="absolute right-2 top-2 p-4 z-30 min-w-[200px]">
+        <Card
+          className="absolute top-2 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:left-auto sm:right-2 sm:translate-x-0 sm:w-auto p-4 z-30 min-w-[200px] md:min-w-[250px]"
+        >
           {activePanel.type === 'colony' && (
             <ColonyPanel
               name={activePanel.name}
@@ -278,7 +280,7 @@ export function App() {
         </Card>
       )}
       {menuOpen && (
-        <div className="absolute top-16 left-2 bg-stone-800/90 p-4 rounded shadow text-dew z-30 space-y-2 max-w-md">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:left-2 sm:translate-x-0 sm:w-auto bg-stone-800/90 p-4 rounded shadow text-dew z-30 space-y-2 max-w-md md:max-w-lg">
           <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
           <div className={`p-1 text-center ${statusColors[connectionStatus]}`}>
             <span className="mr-1">{statusIcons[connectionStatus]}</span>
@@ -389,7 +391,7 @@ export function App() {
       )}
 
       {/* Logs overlay */}
-      <div className="absolute bottom-2 left-2 z-30 max-w-[90vw]">
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:left-2 sm:translate-x-0 sm:w-auto z-30 max-w-[90vw] sm:max-w-sm md:max-w-md">
         <LogConsole
           inLogs={inLogs}
           outLogs={outLogs}
