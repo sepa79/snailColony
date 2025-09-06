@@ -8,6 +8,7 @@ import { HUD } from './ui/hud';
 import { ResourceBar, type Resources } from './ui/resource-bar';
 import { ColonyPanel } from './ui/colony-panel';
 import { SnailPanel } from './ui/snail-panel';
+import { Card } from './ui/components';
 import { MapDef, ServerMessage, GameParams } from '@snail/protocol';
 import type { Snail } from './game/snail';
 
@@ -260,7 +261,7 @@ export function App() {
       {map && <HUD inventory={inventory} goal={goalProgress} />}
 
       {activePanel && (
-        <div className="absolute right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew z-30">
+        <Card className="absolute right-2 top-2 p-4 z-30 min-w-[200px]">
           {activePanel.type === 'colony' && (
             <ColonyPanel
               name={activePanel.name}
@@ -274,7 +275,7 @@ export function App() {
               onClose={() => setActivePanel(null)}
             />
           )}
-        </div>
+        </Card>
       )}
       {menuOpen && (
         <div className="absolute top-16 left-2 bg-stone-800/90 p-4 rounded shadow text-dew z-30 space-y-2 max-w-md">

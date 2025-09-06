@@ -8,11 +8,11 @@ interface ColonyPanelProps {
 
 export function ColonyPanel({ name, stars, onClose }: ColonyPanelProps) {
   return (
-    <div className="min-w-[200px] text-dew">
+    <div>
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg font-bold">{name}</h2>
         <button
-          className="px-2 text-dew hover:text-amber"
+          className="px-2 hover:text-amber"
           onClick={onClose}
           aria-label="Close"
         >
