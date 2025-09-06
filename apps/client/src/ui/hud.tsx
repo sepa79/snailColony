@@ -20,7 +20,7 @@ export function HUD({ inventory, goal }: HUDProps) {
   const goalProgress = goal ? goal.sustain_seconds / goal.sustain_required : 0;
 
   return (
-    <Card className="fixed top-2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm space-y-2 min-w-[240px]">
+    <Card className="fixed top-2 left-1/2 -translate-x-1/2 px-4 py-2 text-sm space-y-2 min-w-[240px] z-10">
       {inventory && (
         <div className="flex items-center justify-around text-center">
           <div className="flex items-center space-x-1">

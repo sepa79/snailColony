@@ -54,10 +54,6 @@ export function App() {
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [selectedSnailId, setSelectedSnailId] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(true);
-  const [viewport, setViewport] = useState(() => ({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight : 0,
-  }));
   // Default to development mode unless explicitly disabled via VITE_DEV=false
   const isDev = import.meta.env.VITE_DEV !== 'false';
 
@@ -215,19 +211,12 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    const onResize = () =>
-      setViewport({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
-  useEffect(() => {
     setMenuOpen(!map);
   }, [map]);
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0">
+      <div className="fixed top-0 left-0 right-0 z-10">
         <ResourceBar resources={inventory ?? {}} />
         <button
           className="absolute top-2 right-2 bg-stone-800/90 px-2 py-1 rounded text-dew"
@@ -237,7 +226,7 @@ export function App() {
         </button>
       </div>
       {activePanel && (
-        <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew">
+        <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew z-10">
           {activePanel.type === 'colony' && (
             <ColonyPanel
               name={activePanel.name}
@@ -248,7 +237,7 @@ export function App() {
         </div>
       )}
       {selectedSnailId !== null && (
-        <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew">
+        <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew z-10">
           <SnailPanel
             name={`Snail ${selectedSnailId}`}
             stars={0}
@@ -350,10 +339,7 @@ export function App() {
         </div>
       )}
       {map && <HUD inventory={inventory} goal={goalProgress} />}
-      <div
-        className="p-4 pt-16 flex flex-col"
-        style={{ width: viewport.width, height: viewport.height }}
-      >
+      <div className="fixed inset-0 p-4 pt-16 flex flex-col">
         <div className="mt-4 flex flex-1 min-h-0">
           {map && (
             <div className="flex-1 h-full min-h-0">
