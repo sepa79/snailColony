@@ -51,6 +51,7 @@ interface Map3DViewProps {
   selectedId: number | null;
   onSelect: (id: number) => void;
   onCommand: (cmd: { t: 'Move'; dx: number; dy: number }) => void;
+  onColonySelect: (colony: { name: string; stars: number }) => void;
 }
 
 export function Map3DView({
@@ -59,6 +60,7 @@ export function Map3DView({
   selectedId,
   onSelect,
   onCommand,
+  onColonySelect,
 }: Map3DViewProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -328,6 +330,23 @@ export function Map3DView({
         if (hits.length > 0) {
           const id = (hits[0].object as THREE.Mesh).userData.id;
           onSelect(id);
+        } else {
+          const point = new THREE.Vector3();
+          if (raycaster.ray.intersectPlane(plane, point)) {
+            const tx = Math.floor(point.x);
+            const ty = Math.floor(point.z);
+            if (
+              tx >= 0 &&
+              ty >= 0 &&
+              tx < map.width &&
+              ty < map.height
+            ) {
+              const tile = map.tiles[ty * map.width + tx];
+              if (tile.structure === Structure.Colony) {
+                onColonySelect({ name: `Colony (${tx},${ty})`, stars: 1 });
+              }
+            }
+          }
         }
       } else if (e.button === 2) {
         e.preventDefault();
@@ -352,7 +371,7 @@ export function Map3DView({
       dom.removeEventListener('pointerdown', onPointer);
       dom.removeEventListener('contextmenu', onContext);
     };
-  }, [entities, selectedId, onSelect, onCommand]);
+  }, [entities, selectedId, onSelect, onCommand, map, onColonySelect]);
 
   return <div ref={rootRef} className="w-full h-full" />;
 }

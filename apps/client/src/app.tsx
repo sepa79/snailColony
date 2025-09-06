@@ -200,6 +200,17 @@ export function App() {
     socket.send(JSON.stringify(cmd));
   };
 
+  const handleColonySelect = ({
+    name,
+    stars,
+  }: {
+    name: string;
+    stars: number;
+  }) => {
+    setSelectedSnailId(null);
+    setActivePanel({ type: 'colony', name, stars });
+  };
+
   const sendCommand = (cmd: { t: 'Move'; dx: number; dy: number }) => {
     if (!socket) return;
     logOut(JSON.stringify(cmd));
@@ -265,6 +276,7 @@ export function App() {
                 selectedId={selectedSnailId}
                 onSelect={setSelectedSnailId}
                 onCommand={sendCommand}
+                onColonySelect={handleColonySelect}
               />
             ) : (
               <MapView
@@ -273,6 +285,7 @@ export function App() {
                 selectedId={selectedSnailId}
                 onSelect={setSelectedSnailId}
                 onCommand={sendCommand}
+                onColonySelect={handleColonySelect}
               />
             )
           )}
