@@ -10,6 +10,10 @@ import { MapDef, ServerMessage, GameParams } from '@snail/protocol';
 export function App() {
   const [url, setUrl] = useState('localhost:3000');
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<
+    'disconnected' | 'connecting' | 'connected' | 'error'
+  >('disconnected');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<{
     t: 'State';
     entities: { id: number; x: number; y: number; hydration: number }[];
@@ -51,6 +55,34 @@ export function App() {
   const logUpkeep = log(setUpkeepLogs);
   const logGoal = log(setGoalLogs);
 
+  const statusColors: Record<
+    'disconnected' | 'connecting' | 'connected' | 'error',
+    string
+  > = {
+    disconnected: 'bg-soil text-dew',
+    connecting: 'bg-dew text-soil',
+    connected: 'bg-moss text-dew',
+    error: 'bg-amber text-soil',
+  };
+  const statusIcons: Record<
+    'disconnected' | 'connecting' | 'connected' | 'error',
+    string
+  > = {
+    disconnected: '🔌',
+    connecting: '⏳',
+    connected: '✅',
+    error: '❌',
+  };
+  const statusText: Record<
+    'disconnected' | 'connecting' | 'connected' | 'error',
+    string
+  > = {
+    disconnected: 'Disconnected',
+    connecting: 'Connecting...',
+    connected: 'Connected',
+    error: 'Error',
+  };
+
   const connect = () => {
     let target = url;
     if (!target.includes('://')) {
@@ -61,15 +93,26 @@ export function App() {
     }
     logSys(`Connecting to ${target}`);
     logOut(`WS connect ${target}`);
+    setConnectionStatus('connecting');
+    setErrorMessage(null);
     const ws = new WebSocket(target);
     ws.onopen = () => {
       logSys('WebSocket opened');
+      setConnectionStatus('connected');
       const join = { t: 'Join', name } as const;
       logOut(JSON.stringify(join));
       ws.send(JSON.stringify(join));
     };
-    ws.onclose = () => logSys('Connection closed');
-    ws.onerror = () => logSys('WebSocket error');
+    ws.onclose = () => {
+      logSys('Connection closed');
+      setConnectionStatus('disconnected');
+      setSocket(null);
+    };
+    ws.onerror = () => {
+      logSys('WebSocket error');
+      setConnectionStatus('error');
+      setErrorMessage('WebSocket error');
+    };
     ws.onmessage = (ev) => {
       logIn(ev.data);
       const msg = JSON.parse(ev.data) as ServerMessage;
@@ -106,6 +149,8 @@ export function App() {
   const disconnect = () => {
     socket?.close();
     setSocket(null);
+    setConnectionStatus('disconnected');
+    setErrorMessage(null);
     setLobby(null);
     setMap(null);
     setSnapshot(null);
@@ -127,6 +172,15 @@ export function App() {
   return (
     <div className="p-4 min-h-screen">
       <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
+      <div
+        className={`mb-2 p-1 text-center ${statusColors[connectionStatus]}`}
+      >
+        <span className="mr-1">{statusIcons[connectionStatus]}</span>
+        {statusText[connectionStatus]}
+        {connectionStatus === 'error' && errorMessage && (
+          <span className="ml-1">{errorMessage}</span>
+        )}
+      </div>
       {map && <HUD inventory={inventory} goal={goalProgress} />}
       <div className="mb-2">
         <input
@@ -170,13 +224,8 @@ export function App() {
           </button>
         )}
       </div>
-      {socket && (
-        <div>
-          <p className="text-glow">Connected</p>
-          {latency !== null && (
-            <p className="text-sm text-dew">Latency: {latency} ms</p>
-          )}
-        </div>
+      {connectionStatus === 'connected' && latency !== null && (
+        <p className="text-sm text-dew">Latency: {latency} ms</p>
       )}
       {!map && lobby && !lobby.started && (
         <div className="mt-4">
