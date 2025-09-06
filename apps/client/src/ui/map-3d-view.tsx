@@ -347,12 +347,13 @@ export function Map3DView({
 
     dom.addEventListener('pointerdown', onPointer);
     dom.addEventListener('contextmenu', onContext);
+
     return () => {
       dom.removeEventListener('pointerdown', onPointer);
       dom.removeEventListener('contextmenu', onContext);
     };
   }, [entities, selectedId, onSelect, onCommand]);
 
-  return <div ref={rootRef} className="w-full h-96" />;
+  return <div ref={rootRef} className="w-full h-full" />;
 }
 

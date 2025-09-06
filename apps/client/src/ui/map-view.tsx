@@ -346,7 +346,7 @@ export function MapView({
     };
   }, [entities, selectedId, onCommand]);
 
-  return <div ref={rootRef} className="w-full h-96" />;
+  return <div ref={rootRef} className="w-full h-full" />;
 }
 
 function drawDiamond(

@@ -227,7 +227,7 @@ export function App() {
           />
         </div>
       )}
-      <div className="p-4 pt-16 min-h-screen">
+      <div className="p-4 pt-16 min-h-screen flex flex-col">
         <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
       <div
         className={`mb-2 p-1 text-center ${statusColors[connectionStatus]}`}
@@ -314,9 +314,9 @@ export function App() {
           </ul>
         </div>
       )}
-      <div className="mt-4 flex">
+      <div className="mt-4 flex flex-1 min-h-0">
         {map && (
-          <div className="flex-1">
+          <div className="flex-1 h-full min-h-0">
             {voxel ? (
               <Map3DView
                 map={map}
