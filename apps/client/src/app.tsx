@@ -53,6 +53,11 @@ export function App() {
   type ActivePanel = { type: 'colony'; name: string; stars: number } | null;
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [selectedSnailId, setSelectedSnailId] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(true);
+  const [viewport, setViewport] = useState(() => ({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+  }));
   // Default to development mode unless explicitly disabled via VITE_DEV=false
   const isDev = import.meta.env.VITE_DEV !== 'false';
 
@@ -209,10 +214,27 @@ export function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  useEffect(() => {
+    const onResize = () =>
+      setViewport({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  useEffect(() => {
+    setMenuOpen(!map);
+  }, [map]);
+
   return (
     <>
       <div className="fixed top-0 left-0 right-0">
         <ResourceBar resources={inventory ?? {}} />
+        <button
+          className="absolute top-2 right-2 bg-stone-800/90 px-2 py-1 rounded text-dew"
+          onClick={() => setMenuOpen((m) => !m)}
+        >
+          Menu
+        </button>
       </div>
       {activePanel && (
         <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew">
@@ -234,113 +256,124 @@ export function App() {
           />
         </div>
       )}
-      <div className="p-4 pt-16 h-screen flex flex-col">
-        <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
-      <div
-        className={`mb-2 p-1 text-center ${statusColors[connectionStatus]}`}
-      >
-        <span className="mr-1">{statusIcons[connectionStatus]}</span>
-        {statusText[connectionStatus]}
-        {connectionStatus === 'error' && errorMessage && (
-          <span className="ml-1">{errorMessage}</span>
-        )}
-      </div>
-      {map && <HUD inventory={inventory} goal={goalProgress} />}
-      <div className="mb-2">
-        <input
-          className="border border-dew bg-soil p-1 mr-2"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-        <input
-          className="border border-dew bg-soil p-1 mr-2"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <button
-          className="bg-glow text-soil px-2 mr-2"
-          onClick={connect}
-          disabled={!!socket || !name}
-        >
-          Connect
-        </button>
-        <button
-          className="bg-amber text-soil px-2 mr-2"
-          onClick={disconnect}
-          disabled={!socket}
-        >
-          Disconnect
-        </button>
-        <button
-          className="bg-moss text-dew px-2 mr-2"
-          onClick={toggleReady}
-          disabled={!socket || !lobby || lobby.started}
-        >
-          {ready ? 'Unready' : 'Ready'}
-        </button>
-        {map && (
-          <button
-            className="bg-dew text-soil px-2 ml-2"
-            onClick={() => setVoxel((v) => !v)}
+      {menuOpen && (
+        <div className="fixed top-16 left-2 bg-stone-800/90 p-4 rounded shadow text-dew z-10 space-y-2 max-w-md">
+          <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
+          <div
+            className={`p-1 text-center ${statusColors[connectionStatus]}`}
           >
-            {voxel ? '2D View' : '3D View'}
-          </button>
-        )}
-      </div>
-      {isDev && (
-        <div className="mb-2">
-          <button
-            className="bg-glow text-soil px-2 mr-2"
-            onClick={() =>
-              setActivePanel({ type: 'colony', name: 'Demo Colony', stars: 3 })
-            }
-          >
-            Show Colony
-          </button>
-          <button
-            className="bg-glow text-soil px-2"
-            onClick={() => setSelectedSnailId(0)}
-          >
-            Show Snail
-          </button>
-        </div>
-      )}
-      {connectionStatus === 'connected' && latency !== null && (
-        <p className="text-sm text-dew">Latency: {latency} ms</p>
-      )}
-      {!map && lobby && !lobby.started && (
-        <div className="mt-4">
-          <h2 className="font-bold">Lobby</h2>
-          <ul className="list-disc ml-5">
-            {lobby.players.map((p) => (
-              <li key={p.name}>
-                {p.name} {p.ready ? '(ready)' : ''}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      <div className="mt-4 flex flex-1 min-h-0">
-        {map && (
-          <div className="flex-1 h-full min-h-0">
-            {voxel ? (
-              <Map3DView
-                map={map}
-                entities={snapshot?.entities ?? []}
-                selectedId={selectedSnailId}
-                onSelect={setSelectedSnailId}
-                onCommand={sendCommand}
-              />
-            ) : (
-              <MapView
-                map={map}
-                entities={snapshot?.entities ?? []}
-                selectedId={selectedSnailId}
-                onSelect={setSelectedSnailId}
-                onCommand={sendCommand}
-              />
+            <span className="mr-1">{statusIcons[connectionStatus]}</span>
+            {statusText[connectionStatus]}
+            {connectionStatus === 'error' && errorMessage && (
+              <span className="ml-1">{errorMessage}</span>
             )}
+          </div>
+          <div className="space-y-2">
+            <div>
+              <input
+                className="border border-dew bg-soil p-1 mr-2"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+              />
+              <input
+                className="border border-dew bg-soil p-1 mr-2"
+                placeholder="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div>
+              <button
+                className="bg-glow text-soil px-2 mr-2"
+                onClick={connect}
+                disabled={!!socket || !name}
+              >
+                Connect
+              </button>
+              <button
+                className="bg-amber text-soil px-2 mr-2"
+                onClick={disconnect}
+                disabled={!socket}
+              >
+                Disconnect
+              </button>
+              <button
+                className="bg-moss text-dew px-2 mr-2"
+                onClick={toggleReady}
+                disabled={!socket || !lobby || lobby.started}
+              >
+                {ready ? 'Unready' : 'Ready'}
+              </button>
+              {map && (
+                <button
+                  className="bg-dew text-soil px-2 ml-2"
+                  onClick={() => setVoxel((v) => !v)}
+                >
+                  {voxel ? '2D View' : '3D View'}
+                </button>
+              )}
+            </div>
+            {connectionStatus === 'connected' && latency !== null && (
+              <p className="text-sm text-dew">Latency: {latency} ms</p>
+            )}
+            {!map && lobby && !lobby.started && (
+              <div>
+                <h2 className="font-bold">Lobby</h2>
+                <ul className="list-disc ml-5">
+                  {lobby.players.map((p) => (
+                    <li key={p.name}>
+                      {p.name} {p.ready ? '(ready)' : ''}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {isDev && (
+              <div>
+                <button
+                  className="bg-glow text-soil px-2 mr-2"
+                  onClick={() =>
+                    setActivePanel({ type: 'colony', name: 'Demo Colony', stars: 3 })
+                  }
+                >
+                  Show Colony
+                </button>
+                <button
+                  className="bg-glow text-soil px-2"
+                  onClick={() => setSelectedSnailId(0)}
+                >
+                  Show Snail
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {map && <HUD inventory={inventory} goal={goalProgress} />}
+      <div
+        className="p-4 pt-16 flex flex-col"
+        style={{ width: viewport.width, height: viewport.height }}
+      >
+        <div className="mt-4 flex flex-1 min-h-0">
+          {map && (
+            <div className="flex-1 h-full min-h-0">
+              {voxel ? (
+                <Map3DView
+                  map={map}
+                  entities={snapshot?.entities ?? []}
+                  selectedId={selectedSnailId}
+                  onSelect={setSelectedSnailId}
+                  onCommand={sendCommand}
+                />
+              ) : (
+                <MapView
+                  map={map}
+                  entities={snapshot?.entities ?? []}
+                  selectedId={selectedSnailId}
+                  onSelect={setSelectedSnailId}
+                  onCommand={sendCommand}
+                />
+              )}
           </div>
         )}
         <div className="ml-4 w-64">
