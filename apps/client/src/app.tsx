@@ -5,6 +5,7 @@ import { LogConsole, LogEntry } from './ui/log-console';
 import { MapView } from './ui/map-view';
 import { Map3DView } from './ui/map-3d-view';
 import { HUD } from './ui/hud';
+import { ResourceBar, type Resources } from './ui/resource-bar';
 import { MapDef, ServerMessage, GameParams } from '@snail/protocol';
 
 const LOG_LIMIT = 100;
@@ -27,9 +28,9 @@ export function App() {
   const [systemLogs, setSystemLogs] = useState<LogEntry[]>([]);
   const [upkeepLogs, setUpkeepLogs] = useState<LogEntry[]>([]);
   const [goalLogs, setGoalLogs] = useState<LogEntry[]>([]);
-  const [inventory, setInventory] = useState<{ water?: number; biomass?: number } | null>(
-    null,
-  );
+  const [inventory, setInventory] = useState<
+    (Resources & { biomass?: number }) | null
+  >(null);
   const [goalProgress, setGoalProgress] = useState<{
     active: number;
     required: number;
@@ -132,7 +133,7 @@ export function App() {
         setMap(msg.map);
         setSnapshot({ t: 'State', entities: msg.entities });
         setParams(msg.params);
-        setInventory(msg.params.resources ?? null);
+        setInventory((msg.params.resources as Resources & { biomass?: number }) ?? null);
         logUpkeep(
           `Base W:${msg.params.resources?.water ?? 0} B:${
             msg.params.resources?.biomass ?? 0
@@ -178,8 +179,12 @@ export function App() {
   };
 
   return (
-    <div className="p-4 min-h-screen">
-      <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
+    <>
+      <div className="fixed top-0 left-0 right-0">
+        <ResourceBar resources={inventory ?? {}} />
+      </div>
+      <div className="p-4 pt-16 min-h-screen">
+        <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
       <div
         className={`mb-2 p-1 text-center ${statusColors[connectionStatus]}`}
       >
@@ -288,5 +293,6 @@ export function App() {
         </div>
       </div>
     </div>
+    </>
   );
 }
