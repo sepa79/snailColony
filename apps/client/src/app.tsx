@@ -52,6 +52,7 @@ export function App() {
     | { type: 'snail'; name: string; stars: number }
     | null;
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
+  const isDev = import.meta.env.MODE !== 'production';
 
   const log = (
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
@@ -272,10 +273,10 @@ export function App() {
           </button>
         )}
       </div>
-      {import.meta.env.DEV && (
+      {isDev && (
         <div className="mb-2">
           <button
-            className="bg-stone-700 text-dew px-2 mr-2"
+            className="bg-glow text-soil px-2 mr-2"
             onClick={() =>
               setActivePanel({ type: 'colony', name: 'Demo Colony', stars: 3 })
             }
@@ -283,7 +284,7 @@ export function App() {
             Show Colony
           </button>
           <button
-            className="bg-stone-700 text-dew px-2"
+            className="bg-glow text-soil px-2"
             onClick={() =>
               setActivePanel({ type: 'snail', name: 'Demo Snail', stars: 2 })
             }
