@@ -3,9 +3,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        soil: '#2B2B2B',
+        'soil-light': '#444444',
         moss: '#3E6B3E',
-        dew: '#4AAFD9',
+        'dew-dark': '#2384B8',
         glow: '#1DE9B6',
         amber: '#FFC107',
       },

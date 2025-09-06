@@ -46,8 +46,8 @@ export function SnailPanel({ snail, onClose }: SnailPanelProps) {
         ))}
       </ul>
       <div className="flex gap-2">
-        <button className="bg-dew text-soil px-2 py-1 rounded">Feed</button>
-        <button className="bg-moss text-soil px-2 py-1 rounded">Explore</button>
+        <button className="bg-dew-dark text-soil-light px-2 py-1 rounded">Feed</button>
+        <button className="bg-moss text-soil-light px-2 py-1 rounded">Explore</button>
       </div>
     </div>
   );

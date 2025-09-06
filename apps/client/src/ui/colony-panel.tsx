@@ -23,8 +23,8 @@ export function ColonyPanel({ name, stars, onClose }: ColonyPanelProps) {
         <StarRating stars={stars} />
       </div>
       <div className="flex gap-2">
-        <button className="bg-moss text-soil px-2 py-1 rounded">Upgrade</button>
-        <button className="bg-amber text-soil px-2 py-1 rounded">Abandon</button>
+        <button className="bg-moss text-soil-light px-2 py-1 rounded">Upgrade</button>
+        <button className="bg-amber text-soil-light px-2 py-1 rounded">Abandon</button>
       </div>
     </div>
   );

@@ -39,7 +39,7 @@ const LogColumn = React.memo(function LogColumn({
         <span>{title}</span>
         {onClear && (
           <button
-            className="text-xs text-dew hover:text-moss"
+            className="text-xs text-dew-dark hover:text-moss"
             onClick={onClear}
           >
             Clear

@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 body {
-  @apply bg-soil text-dew font-sans;
+  @apply bg-soil-light text-dew-dark font-sans;
 }
