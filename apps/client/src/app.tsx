@@ -9,7 +9,7 @@ import { HUD } from './ui/hud';
 import { ResourceBar, type Resources } from './ui/resource-bar';
 import { ColonyPanel } from './ui/colony-panel';
 import { SnailPanel } from './ui/snail-panel';
-import { Card } from './ui/components';
+import { Card, Button } from './ui/components';
 import { MapDef, ServerMessage, GameParams } from '@snail/protocol';
 import type { Snail } from './game/snail';
 
@@ -250,12 +250,12 @@ export function App() {
       {/* Resource bar and menu button */}
       <div className="absolute top-0 left-0 right-0 z-20">
         <ResourceBar resources={inventory ?? {}} />
-        <button
-          className="absolute top-2 right-2 bg-stone-800/90 px-2 py-1 rounded text-dew-dark"
+        <Button
+          className="absolute top-2 right-2"
           onClick={() => setMenuOpen((m) => !m)}
         >
           Menu
-        </button>
+        </Button>
       </div>
 
       {/* Overlays */}
@@ -321,36 +321,40 @@ export function App() {
                 />
               </div>
               <div>
-                <button
-                  className="bg-glow text-soil-light px-2 mr-2"
+                <Button
+                  variant="danger"
+                  className="mr-2"
                   onClick={connect}
                   disabled={!!socket || !name}
                 >
                   Connect
-                </button>
-                <button
-                  className="bg-amber text-soil-light px-2 mr-2"
+                </Button>
+                <Button
+                  variant="warning"
+                  className="mr-2"
                   onClick={disconnect}
                   disabled={!socket}
                 >
                   Disconnect
-                </button>
-              <button
-                className="bg-moss text-dew-dark px-2 mr-2"
-                onClick={toggleReady}
-                disabled={!socket || !lobby || lobby.started}
-              >
-                {ready ? 'Unready' : 'Ready'}
-              </button>
-              {map && (
-                <button
-                  className="bg-dew-dark text-soil-light px-2 ml-2"
-                  onClick={() => setVoxel((v) => !v)}
+                </Button>
+                <Button
+                  variant="primary"
+                  className="mr-2"
+                  onClick={toggleReady}
+                  disabled={!socket || !lobby || lobby.started}
                 >
-                  {voxel ? '2D View' : '3D View'}
-                </button>
-              )}
-            </div>
+                  {ready ? 'Unready' : 'Ready'}
+                </Button>
+                {map && (
+                  <Button
+                    variant="secondary"
+                    className="ml-2"
+                    onClick={() => setVoxel((v) => !v)}
+                  >
+                    {voxel ? '2D View' : '3D View'}
+                  </Button>
+                )}
+              </div>
             {connectionStatus === 'connected' && latency !== null && (
               <p className="text-sm text-dew-dark">Latency: {latency} ms</p>
             )}
@@ -368,20 +372,21 @@ export function App() {
             )}
             {isDev && (
               <div>
-                <button
-                  className="bg-glow text-soil-light px-2 mr-2"
+                <Button
+                  variant="danger"
+                  className="mr-2"
                   onClick={() =>
                     setActivePanel({ type: 'colony', name: 'Demo Colony', stars: 3 })
                   }
                 >
                   Show Colony
-                </button>
-                <button
-                  className="bg-glow text-soil-light px-2"
+                </Button>
+                <Button
+                  variant="danger"
                   onClick={() => setSelectedSnailId(0)}
                 >
                   Show Snail
-                </button>
+                </Button>
               </div>
             )}
           </div>

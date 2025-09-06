@@ -1,4 +1,4 @@
-import { StarRating } from './components';
+import { StarRating, Button } from './components';
 
 interface ColonyPanelProps {
   name: string;
@@ -11,20 +11,21 @@ export function ColonyPanel({ name, stars, onClose }: ColonyPanelProps) {
     <div>
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg font-bold">{name}</h2>
-        <button
-          className="px-2 hover:text-amber"
+        <Button
+          variant="ghost"
           onClick={onClose}
           aria-label="Close"
+          className="hover:text-amber"
         >
           ✕
-        </button>
+        </Button>
       </div>
       <div className="mb-4">
         <StarRating stars={stars} />
       </div>
       <div className="flex gap-2">
-        <button className="bg-moss text-soil-light px-2 py-1 rounded">Upgrade</button>
-        <button className="bg-amber text-soil-light px-2 py-1 rounded">Abandon</button>
+        <Button variant="primary">Upgrade</Button>
+        <Button variant="warning">Abandon</Button>
       </div>
     </div>
   );
