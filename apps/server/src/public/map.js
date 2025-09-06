@@ -37,6 +37,22 @@ const resourceColors = {
   water: 0x1e90ff,
 };
 
+window.renderTerrainLegend = function (containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  Object.entries(terrainColors).forEach(([name, color]) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    const swatch = document.createElement('span');
+    swatch.className = 'legend-swatch';
+    swatch.style.background = `#${color.toString(16).padStart(6, '0')}`;
+    item.appendChild(swatch);
+    item.appendChild(document.createTextNode(name));
+    el.appendChild(item);
+  });
+};
+
 function drawDiamond(g, x, y, w = TILE_W, h = TILE_H) {
   g.moveTo(x, y + h / 2);
   g.lineTo(x + w / 2, y);

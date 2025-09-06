@@ -38,6 +38,14 @@
       justify-content: center;
       margin-bottom: 10px;
     }
+    .controls label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .controls input[type="range"] {
+      width: 80px;
+    }
     button {
       background: var(--glow);
       color: var(--soil-light);
@@ -62,8 +70,25 @@
     }
     #map {
       width: 100%;
-      max-width: 400px;
+      max-width: 600px;
       aspect-ratio: 1 / 1;
+      border: 1px solid var(--dew-dark);
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--dew-dark);
+    }
+    .legend-swatch {
+      width: 16px;
+      height: 16px;
       border: 1px solid var(--dew-dark);
     }
     #logs {
@@ -93,6 +118,14 @@
   <div class="controls">
     <button id="startBtn">Start Game</button>
     <button id="refreshBtn">Refresh Lobby</button>
+    <label>W
+      <input type="range" id="widthRange" min="3" max="20" value="5" />
+      <span id="widthVal">5</span>
+    </label>
+    <label>H
+      <input type="range" id="heightRange" min="3" max="20" value="5" />
+      <span id="heightVal">5</span>
+    </label>
     <button id="genMapBtn">Generate Map</button>
     <span id="error" style="color:var(--amber); margin-left:10px;"></span>
   </div>
@@ -100,6 +133,8 @@
   <ul id="players"></ul>
   <h2>Map</h2>
   <div id="map"></div>
+  <h3>Terrain Legend</h3>
+  <div id="terrainLegend" class="legend"></div>
   <div id="logs">
     <div class="log-col">
       <h3>IN</h3>
@@ -123,6 +158,10 @@
     const startBtn = document.getElementById('startBtn');
     const refreshBtn = document.getElementById('refreshBtn');
     const genMapBtn = document.getElementById('genMapBtn');
+    const widthRange = document.getElementById('widthRange');
+    const heightRange = document.getElementById('heightRange');
+    const widthVal = document.getElementById('widthVal');
+    const heightVal = document.getElementById('heightVal');
     startBtn.disabled = true;
 
     function log(el, msg) {
@@ -176,9 +215,20 @@
     }
 
     bindAsync(refreshBtn, refresh);
+    function sync(slider, display) {
+      display.textContent = slider.value;
+    }
+    widthRange.addEventListener('input', () => sync(widthRange, widthVal));
+    heightRange.addEventListener('input', () => sync(heightRange, heightVal));
+    sync(widthRange, widthVal);
+    sync(heightRange, heightVal);
     bindAsync(genMapBtn, async () => {
-      log(outLogs, 'POST /map/lobby/generate');
-      const res = await fetch('/map/lobby/generate', { method: 'POST' });
+      const w = widthRange.value;
+      const h = heightRange.value;
+      log(outLogs, `POST /map/lobby/generate?w=${w}&h=${h}`);
+      const res = await fetch(`/map/lobby/generate?w=${w}&h=${h}`, {
+        method: 'POST',
+      });
       const map = await res.json();
       initMapView(map);
     });
@@ -199,6 +249,7 @@
 
     bindAsync(startBtn, startGame);
 
+    renderTerrainLegend('terrainLegend');
     refresh();
     loadMap();
 
