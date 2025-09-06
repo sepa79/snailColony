@@ -223,29 +223,38 @@ export function App() {
       return;
     }
 
-    const entity = snapshot?.entities.find((e) => e.id === selectedSnailId);
+    setActivePanel((current) => {
+      const entity = snapshot?.entities.find((e) => e.id === selectedSnailId);
 
-    const snail: Snail = entity
-      ? {
-          name: `Snail ${entity.id}`,
-          stars: 1,
-          brain: 0,
-          speed: 0,
-          shell: 0,
-          storage: 0,
-          sync: 0,
-        }
-      : {
-          name: `Snail ${selectedSnailId}`,
-          stars: 1,
-          brain: 0,
-          speed: 0,
-          shell: 0,
-          storage: 0,
-          sync: 0,
-        };
+      const snail: Snail = entity
+        ? {
+            id: entity.id,
+            name: `Snail ${entity.id}`,
+            stars: 1,
+            brain: 0,
+            speed: 0,
+            shell: 0,
+            storage: 0,
+            sync: 0,
+          }
+        : {
+            id: selectedSnailId,
+            name: `Snail ${selectedSnailId}`,
+            stars: 1,
+            brain: 0,
+            speed: 0,
+            shell: 0,
+            storage: 0,
+            sync: 0,
+          };
 
-    setActivePanel({ type: 'snail', snail });
+      const currentId =
+        current?.type === 'snail' ? current.snail.id : null;
+      if (currentId === selectedSnailId) {
+        return { ...current, snail };
+      }
+      return { type: 'snail', snail };
+    });
   }, [selectedSnailId, snapshot]);
 
   useEffect(() => {
