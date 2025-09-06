@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   Controller,
   Get,
   Param,
@@ -29,7 +29,7 @@ export class MapController {
   ) {
     const room = this.rooms.getRoom(roomId);
     if (room?.started) {
-      throw new BadRequestException('Game already started');
+      throw new ConflictException('Game already started');
     }
     const width = w ? parseInt(w, 10) : undefined;
     const height = h ? parseInt(h, 10) : undefined;
