@@ -65,6 +65,7 @@ window.initMapView = function (map) {
   const container = document.getElementById('map');
   // clear previous render, if any
   container.innerHTML = '';
+  container.style.aspectRatio = `${map.width} / ${map.height}`;
   if (window.mapApp) {
     window.mapApp.destroy(true, { children: true, texture: true, baseTexture: true });
     window.mapApp = undefined;
