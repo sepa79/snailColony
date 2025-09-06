@@ -125,37 +125,37 @@ export function App() {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-2">SnailColony</h1>
+    <div className="p-4 min-h-screen">
+      <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
       {map && <HUD inventory={inventory} goal={goalProgress} />}
       <div className="mb-2">
         <input
-          className="border p-1 mr-2"
+          className="border border-dew bg-soil p-1 mr-2"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
         <input
-          className="border p-1 mr-2"
+          className="border border-dew bg-soil p-1 mr-2"
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <button
-          className="bg-blue-500 text-white px-2 mr-2"
+          className="bg-glow text-soil px-2 mr-2"
           onClick={connect}
           disabled={!!socket || !name}
         >
           Connect
         </button>
         <button
-          className="bg-gray-500 text-white px-2 mr-2"
+          className="bg-amber text-soil px-2 mr-2"
           onClick={disconnect}
           disabled={!socket}
         >
           Disconnect
         </button>
         <button
-          className="bg-green-500 text-white px-2 mr-2"
+          className="bg-moss text-dew px-2 mr-2"
           onClick={toggleReady}
           disabled={!socket || !lobby || lobby.started}
         >
@@ -163,7 +163,7 @@ export function App() {
         </button>
         {map && (
           <button
-            className="bg-purple-500 text-white px-2 ml-2"
+            className="bg-dew text-soil px-2 ml-2"
             onClick={() => setVoxel((v) => !v)}
           >
             {voxel ? '2D View' : '3D View'}
@@ -172,9 +172,9 @@ export function App() {
       </div>
       {socket && (
         <div>
-          <p className="text-green-700">Connected</p>
+          <p className="text-glow">Connected</p>
           {latency !== null && (
-            <p className="text-sm text-gray-700">Latency: {latency} ms</p>
+            <p className="text-sm text-dew">Latency: {latency} ms</p>
           )}
         </div>
       )}
