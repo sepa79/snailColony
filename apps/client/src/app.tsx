@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLatency } from './net/use-latency';
 import { EntityStatus } from './ui/entity-status';
 import { LogConsole, LogEntry } from './ui/log-console';
@@ -6,6 +6,8 @@ import { MapView } from './ui/map-view';
 import { Map3DView } from './ui/map-3d-view';
 import { HUD } from './ui/hud';
 import { ResourceBar, type Resources } from './ui/resource-bar';
+import { ColonyPanel } from './ui/colony-panel';
+import { SnailPanel } from './ui/snail-panel';
 import { MapDef, ServerMessage, GameParams } from '@snail/protocol';
 
 const LOG_LIMIT = 100;
@@ -45,6 +47,13 @@ export function App() {
     players: { name: string; ready: boolean }[];
     started: boolean;
   } | null>(null);
+  type ActivePanel =
+    | { type: 'colony'; name: string; stars: number }
+    | { type: 'snail'; name: string; stars: number }
+    | null;
+  const [activePanel, setActivePanel] = useState<ActivePanel>(null);
+  // Default to development mode unless explicitly disabled via VITE_DEV=false
+  const isDev = import.meta.env.VITE_DEV !== 'false';
 
   const log = (
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
@@ -178,11 +187,39 @@ export function App() {
     socket.send(JSON.stringify(cmd));
   };
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActivePanel(null);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   return (
     <>
       <div className="fixed top-0 left-0 right-0">
         <ResourceBar resources={inventory ?? {}} />
       </div>
+      {activePanel && (
+        <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew">
+          {activePanel.type === 'colony' && (
+            <ColonyPanel
+              name={activePanel.name}
+              stars={activePanel.stars}
+              onClose={() => setActivePanel(null)}
+            />
+          )}
+          {activePanel.type === 'snail' && (
+            <SnailPanel
+              name={activePanel.name}
+              stars={activePanel.stars}
+              onClose={() => setActivePanel(null)}
+            />
+          )}
+        </div>
+      )}
       <div className="p-4 pt-16 min-h-screen">
         <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
       <div
@@ -237,6 +274,26 @@ export function App() {
           </button>
         )}
       </div>
+      {isDev && (
+        <div className="mb-2">
+          <button
+            className="bg-glow text-soil px-2 mr-2"
+            onClick={() =>
+              setActivePanel({ type: 'colony', name: 'Demo Colony', stars: 3 })
+            }
+          >
+            Show Colony
+          </button>
+          <button
+            className="bg-glow text-soil px-2"
+            onClick={() =>
+              setActivePanel({ type: 'snail', name: 'Demo Snail', stars: 2 })
+            }
+          >
+            Show Snail
+          </button>
+        </div>
+      )}
       {connectionStatus === 'connected' && latency !== null && (
         <p className="text-sm text-dew">Latency: {latency} ms</p>
       )}
