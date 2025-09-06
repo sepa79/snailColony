@@ -9,6 +9,7 @@ import { ResourceBar, type Resources } from './ui/resource-bar';
 import { ColonyPanel } from './ui/colony-panel';
 import { SnailPanel } from './ui/snail-panel';
 import { MapDef, ServerMessage, GameParams } from '@snail/protocol';
+import type { Snail } from './game/snail';
 
 const LOG_LIMIT = 100;
 
@@ -50,7 +51,10 @@ export function App() {
     players: { name: string; ready: boolean }[];
     started: boolean;
   } | null>(null);
-  type ActivePanel = { type: 'colony'; name: string; stars: number } | null;
+  type ActivePanel =
+    | { type: 'colony'; name: string; stars: number }
+    | { type: 'snail'; snail: Snail }
+    | null;
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [selectedSnailId, setSelectedSnailId] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(true);
@@ -264,16 +268,112 @@ export function App() {
               onClose={() => setActivePanel(null)}
             />
           )}
+          {activePanel.type === 'snail' && (
+            <SnailPanel
+              snail={activePanel.snail}
+              onClose={() => setActivePanel(null)}
+            />
+          )}
         </div>
       )}
-
-      {selectedSnailId !== null && (
-        <div className="absolute right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew z-30">
-          <SnailPanel
-            name={`Snail ${selectedSnailId}`}
-            stars={0}
-            onClose={() => setSelectedSnailId(null)}
-          />
+      <div className="p-4 pt-16 min-h-screen">
+        <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
+      <div
+        className={`mb-2 p-1 text-center ${statusColors[connectionStatus]}`}
+      >
+        <span className="mr-1">{statusIcons[connectionStatus]}</span>
+        {statusText[connectionStatus]}
+        {connectionStatus === 'error' && errorMessage && (
+          <span className="ml-1">{errorMessage}</span>
+        )}
+      </div>
+      {map && <HUD inventory={inventory} goal={goalProgress} />}
+      <div className="mb-2">
+        <input
+          className="border border-dew bg-soil p-1 mr-2"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+        />
+        <input
+          className="border border-dew bg-soil p-1 mr-2"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button
+          className="bg-glow text-soil px-2 mr-2"
+          onClick={connect}
+          disabled={!!socket || !name}
+        >
+          Connect
+        </button>
+        <button
+          className="bg-amber text-soil px-2 mr-2"
+          onClick={disconnect}
+          disabled={!socket}
+        >
+          Disconnect
+        </button>
+        <button
+          className="bg-moss text-dew px-2 mr-2"
+          onClick={toggleReady}
+          disabled={!socket || !lobby || lobby.started}
+        >
+          {ready ? 'Unready' : 'Ready'}
+        </button>
+        {map && (
+          <button
+            className="bg-dew text-soil px-2 ml-2"
+            onClick={() => setVoxel((v) => !v)}
+          >
+            {voxel ? '2D View' : '3D View'}
+          </button>
+        )}
+      </div>
+      {isDev && (
+        <div className="mb-2">
+          <button
+            className="bg-glow text-soil px-2 mr-2"
+            onClick={() =>
+              setActivePanel({ type: 'colony', name: 'Demo Colony', stars: 3 })
+            }
+          >
+            Show Colony
+          </button>
+          <button
+            className="bg-glow text-soil px-2"
+            onClick={() =>
+              setActivePanel({
+                type: 'snail',
+                snail: {
+                  name: 'Demo Snail',
+                  stars: 2,
+                  brain: 1,
+                  speed: 2,
+                  shell: 3,
+                  storage: 4,
+                  sync: 2,
+                },
+              })
+            }
+          >
+            Show Snail
+          </button>
+        </div>
+      )}
+      {connectionStatus === 'connected' && latency !== null && (
+        <p className="text-sm text-dew">Latency: {latency} ms</p>
+      )}
+      {!map && lobby && !lobby.started && (
+        <div className="mt-4">
+          <h2 className="font-bold">Lobby</h2>
+          <ul className="list-disc ml-5">
+            {lobby.players.map((p) => (
+              <li key={p.name}>
+                {p.name} {p.ready ? '(ready)' : ''}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
