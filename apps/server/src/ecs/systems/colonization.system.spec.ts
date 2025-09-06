@@ -58,4 +58,35 @@ describe('colonizationSystem', () => {
     expect(hasComponent(world, Base, colony)).toBe(true);
     expect(hasComponent(world, BuildTimer, colony)).toBe(false);
   });
+
+  it('ignores build requests outside map bounds', () => {
+    const params = JSON.parse(JSON.stringify(baseParams));
+    const map: MapDef = {
+      width: 1,
+      height: 1,
+      version: 1,
+      moisture: 0,
+      tiles: [
+        {
+          terrain: 'Dirt' as unknown as TerrainType,
+          water: 'None' as WaterLayer,
+          grass: 'None' as GrassLayer,
+          structure: 'None' as Structure,
+          slime_intensity: 0,
+        },
+      ],
+    } as unknown as MapDef;
+    const world = createWorld();
+    const base = addEntity(world);
+    addComponent(world, Base, base);
+    addComponent(world, Position, base);
+    initBase(base);
+    Position.x[base] = 0;
+    Position.y[base] = 0;
+    Base.biomass[base] = params.colony.build_cost.biomass;
+    Base.water[base] = params.colony.build_cost.water;
+    colonizationSystem(world, map, params, [{ base, x: 5, y: 0 }]);
+    const buildQuery = defineQuery([BuildTimer, Position]);
+    expect(buildQuery(world).length).toBe(0);
+  });
 });

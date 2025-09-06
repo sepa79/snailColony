@@ -17,10 +17,11 @@ function stepCost(map: MapDef, x: number, y: number, params: PathParams) {
   const terrain = terrainAt(map, x, y);
   const tile = tileAt(map, x, y);
   const t = params.terrain?.[terrain ?? ''];
-  const base = 1 + (t?.hydration_cost ?? 0);
-  let cost = base;
-  if ((t?.hydration_cost ?? 0) > 0) {
-    cost = Math.max(0, base - params.k * (tile?.slime_intensity ?? 0));
+  const speed = 1 / (t?.base_speed ?? 1);
+  const baseHydration = t?.hydration_cost ?? 0;
+  let cost = speed + baseHydration;
+  if (baseHydration > 0) {
+    cost = speed + Math.max(0, baseHydration - params.k * (tile?.slime_intensity ?? 0));
   }
   if (params.slimePreference && (tile?.slime_intensity ?? 0) > 0.3) {
     cost -= params.slimePreference;
@@ -34,6 +35,9 @@ export function findPath(
   goal: Point,
   params: PathParams,
 ): Point[] {
+  if (!tileAt(map, start.x, start.y) || !tileAt(map, goal.x, goal.y)) {
+    return [];
+  }
   const key = (x: number, y: number) => `${x},${y}`;
   interface Node { x: number; y: number; g: number; f: number }
   const open: Node[] = [{ x: start.x, y: start.y, g: 0, f: heuristic(start, goal) }];
