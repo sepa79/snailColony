@@ -4,7 +4,7 @@ import shellIcon from '../assets/icons/shell.svg';
 import storageIcon from '../assets/icons/storage.svg';
 import syncIcon from '../assets/icons/sync.svg';
 import { Snail } from '../game/snail';
-import { StarRating } from './components';
+import { StarRating, Button } from './components';
 
 interface SnailPanelProps {
   snail: Snail;
@@ -24,13 +24,14 @@ export function SnailPanel({ snail, onClose }: SnailPanelProps) {
     <div>
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg font-bold">{snail.name}</h2>
-        <button
-          className="px-2 hover:text-amber"
+        <Button
+          variant="ghost"
           onClick={onClose}
           aria-label="Close"
+          className="hover:text-amber"
         >
           ✕
-        </button>
+        </Button>
       </div>
       <div className="mb-4">
         <StarRating stars={snail.stars} />
@@ -46,8 +47,8 @@ export function SnailPanel({ snail, onClose }: SnailPanelProps) {
         ))}
       </ul>
       <div className="flex gap-2">
-        <button className="bg-dew-dark text-soil-light px-2 py-1 rounded">Feed</button>
-        <button className="bg-moss text-soil-light px-2 py-1 rounded">Explore</button>
+        <Button variant="secondary">Feed</Button>
+        <Button variant="primary">Explore</Button>
       </div>
     </div>
   );
