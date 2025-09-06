@@ -122,7 +122,7 @@ describe('movementSystem', () => {
     const { world, eid } = setup(1, 0);
     Position.x[eid] = 2;
     movementSystem(world, map, params);
-    expect(Position.x[eid]).toBeLessThan(map.width);
+    expect(Position.x[eid]).toBeCloseTo(map.width - 1);
     Velocity.dx[eid] = -1;
     movementSystem(world, map, params);
     expect(Position.x[eid]).toBeGreaterThanOrEqual(0);

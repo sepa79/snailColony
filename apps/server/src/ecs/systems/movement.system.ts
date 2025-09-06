@@ -41,8 +41,8 @@ export function movementSystem(world: IWorld, map: MapDef, params: Params) {
     let dy = Velocity.dy[eid];
 
     if (Destination.active[eid]) {
-      const maxX = map.width - 1e-6;
-      const maxY = map.height - 1e-6;
+      const maxX = map.width - 1;
+      const maxY = map.height - 1;
       const tx = Math.max(0, Math.min(Destination.x[eid], maxX));
       const ty = Math.max(0, Math.min(Destination.y[eid], maxY));
       Destination.x[eid] = tx;
@@ -73,8 +73,8 @@ export function movementSystem(world: IWorld, map: MapDef, params: Params) {
       }
     }
 
-    const maxX = map.width - 1e-6;
-    const maxY = map.height - 1e-6;
+    const maxX = map.width - 1;
+    const maxY = map.height - 1;
     const nx = Position.x[eid] + dx * speed;
     const ny = Position.y[eid] + dy * speed;
     Position.x[eid] = Math.max(0, Math.min(nx, maxX));
