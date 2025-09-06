@@ -1,5 +1,5 @@
 import { IWorld, defineQuery } from 'bitecs';
-import { Position, Velocity } from '../components';
+import { Position, Velocity, Destination } from '../components';
 import { MapDef } from '@snail/protocol';
 import { terrainAt, tileAt } from '../../game/terrain';
 import type { GameParams } from '../../config';
@@ -36,8 +36,41 @@ export function movementSystem(world: IWorld, map: MapDef, params: Params) {
         }
       }
     }
-    Position.x[eid] += Velocity.dx[eid] * speed;
-    Position.y[eid] += Velocity.dy[eid] * speed;
+
+    let dx = Velocity.dx[eid];
+    let dy = Velocity.dy[eid];
+
+    if (Destination.active[eid]) {
+      const tx = Destination.x[eid];
+      const ty = Destination.y[eid];
+      const rx = tx - Position.x[eid];
+      const ry = ty - Position.y[eid];
+      const dist = Math.sqrt(rx * rx + ry * ry);
+      if (dist <= speed) {
+        Position.x[eid] = tx;
+        Position.y[eid] = ty;
+        Velocity.dx[eid] = 0;
+        Velocity.dy[eid] = 0;
+        Destination.active[eid] = 0;
+        continue;
+      }
+      dx = rx / dist;
+      dy = ry / dist;
+      Velocity.dx[eid] = dx;
+      Velocity.dy[eid] = dy;
+    } else {
+      // Clamp velocity magnitude so diagonal or large inputs don't exceed base speed
+      const mag = Math.sqrt(dx * dx + dy * dy);
+      if (mag > 1) {
+        dx /= mag;
+        dy /= mag;
+        Velocity.dx[eid] = dx;
+        Velocity.dy[eid] = dy;
+      }
+    }
+
+    Position.x[eid] += dx * speed;
+    Position.y[eid] += dy * speed;
   }
   return world;
 }

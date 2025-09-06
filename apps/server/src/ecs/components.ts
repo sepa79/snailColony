@@ -2,6 +2,7 @@ import { defineComponent, Types } from 'bitecs';
 
 export const Position = defineComponent({ x: Types.f32, y: Types.f32 });
 export const Velocity = defineComponent({ dx: Types.f32, dy: Types.f32 });
+export const Destination = defineComponent({ x: Types.f32, y: Types.f32, active: Types.ui8 });
 export const Hydration = defineComponent({ value: Types.f32 });
 export const Worker = defineComponent({
   carry_biomass: Types.f32,
@@ -25,6 +26,7 @@ export const Upkeep = defineComponent({
 export type WorldComponents = {
   position: typeof Position;
   velocity: typeof Velocity;
+  destination: typeof Destination;
   hydration: typeof Hydration;
   worker: typeof Worker;
   dead: typeof Dead;

@@ -3,6 +3,7 @@ import {
   Hydration,
   Position,
   Velocity,
+  Destination,
   Worker,
   initWorker,
 } from './components';
@@ -39,6 +40,7 @@ export class World {
     this.snail = addEntity(this.world);
     addComponent(this.world, Position, this.snail);
     addComponent(this.world, Velocity, this.snail);
+    addComponent(this.world, Destination, this.snail);
     addComponent(this.world, Hydration, this.snail);
     addComponent(this.world, Worker, this.snail);
     initWorker(this.snail);
@@ -46,6 +48,9 @@ export class World {
     Position.y[this.snail] = 0;
     Velocity.dx[this.snail] = 0;
     Velocity.dy[this.snail] = 0;
+    Destination.x[this.snail] = 0;
+    Destination.y[this.snail] = 0;
+    Destination.active[this.snail] = 0;
     Hydration.value[this.snail] = 100;
     const svc = new MapService();
     this.map = svc.load('test');
@@ -134,8 +139,11 @@ export class World {
   }
 
   setVelocity(dx: number, dy: number) {
-    Velocity.dx[this.snail] = dx;
-    Velocity.dy[this.snail] = dy;
+    Destination.x[this.snail] = Position.x[this.snail] + dx;
+    Destination.y[this.snail] = Position.y[this.snail] + dy;
+    Destination.active[this.snail] = 1;
+    Velocity.dx[this.snail] = 0;
+    Velocity.dy[this.snail] = 0;
   }
 
   goalProgress() {

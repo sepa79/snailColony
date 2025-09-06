@@ -66,6 +66,7 @@ export function MapView({
   const appRef = useRef<PIXI.Application | null>(null);
   const cameraRef = useRef<PIXI.Container | null>(null);
   const entityLayerRef = useRef<PIXI.Container | null>(null);
+  const highlightRef = useRef<PIXI.Graphics | null>(null);
   const entityRefs = useRef<Map<number, PIXI.Graphics>>(new Map());
 
   useEffect(() => {
@@ -100,6 +101,8 @@ export function MapView({
     const structureLayer = new PIXI.Container();
     const slimeLayer = new PIXI.Container();
     const resourceLayer = new PIXI.Container();
+    const highlight = new PIXI.Graphics();
+    highlightRef.current = highlight;
     const entityLayer = new PIXI.Container();
     entityLayerRef.current = entityLayer;
     camera.addChild(waterLayer, grassLayer, structureLayer, slimeLayer);
@@ -181,6 +184,7 @@ export function MapView({
     });
 
     camera.addChild(resourceLayer);
+    camera.addChild(highlight);
     camera.addChild(entityLayer);
 
     const grid = new PIXI.Graphics();
@@ -331,10 +335,16 @@ export function MapView({
       );
       const snail = entities.find((s) => s.id === selectedId);
       if (!snail) return;
-      const sx = Math.floor(snail.x);
-      const sy = Math.floor(snail.y);
-      const dx = tileX - sx;
-      const dy = tileY - sy;
+      const dx = tileX - snail.x;
+      const dy = tileY - snail.y;
+      const highlight = highlightRef.current;
+      if (highlight) {
+        highlight.clear();
+        highlight.lineStyle(2, 0xffff00);
+        const px = (tileX - tileY) * (TILE_W / 2);
+        const py = (tileX + tileY) * (TILE_H / 2);
+        drawDiamond(highlight, px, py);
+      }
       onCommand({ t: 'Move', dx, dy });
     };
 

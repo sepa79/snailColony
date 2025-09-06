@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] - 2025-09-07
+### Added
+- Highlight clicked map tiles and dispatch precise move commands so snails move to the chosen square and stop.
+- Clamp snail velocity for consistent speed and halt on arrival.
+- Regression tests cover diagonal normalization and stop-at-destination.
+
 ## [0.1.8] - 2025-09-07
 ### Added
 - Render entities on maps with snail selection and move commands.
