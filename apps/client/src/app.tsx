@@ -88,10 +88,10 @@ export function App() {
     'disconnected' | 'connecting' | 'connected' | 'error',
     string
   > = {
-    disconnected: 'bg-soil text-dew',
-    connecting: 'bg-dew text-soil',
-    connected: 'bg-moss text-dew',
-    error: 'bg-amber text-soil',
+    disconnected: 'bg-soil-light text-dew-dark',
+    connecting: 'bg-dew-dark text-soil-light',
+    connected: 'bg-moss text-dew-dark',
+    error: 'bg-amber text-soil-light',
   };
   const statusIcons: Record<
     'disconnected' | 'connecting' | 'connected' | 'error',
@@ -220,7 +220,7 @@ export function App() {
   }, [map]);
 
   return (
-    <div className="relative w-screen h-screen bg-soil">
+    <div className="relative w-screen h-screen bg-soil-light">
       {/* Map centered with accent border taking 90% of viewport */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative w-[90vw] h-[90vh] border-4 border-glow">
@@ -250,7 +250,7 @@ export function App() {
       <div className="absolute top-0 left-0 right-0 z-20">
         <ResourceBar resources={inventory ?? {}} />
         <button
-          className="absolute top-2 right-2 bg-stone-800/90 px-2 py-1 rounded text-dew"
+          className="absolute top-2 right-2 bg-stone-800/90 px-2 py-1 rounded text-dew-dark"
           onClick={() => setMenuOpen((m) => !m)}
         >
           Menu
@@ -280,7 +280,7 @@ export function App() {
         </Card>
       )}
       {menuOpen && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:left-2 sm:translate-x-0 sm:w-auto bg-stone-800/90 p-4 rounded shadow text-dew z-30 space-y-2 max-w-md md:max-w-lg">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:left-2 sm:translate-x-0 sm:w-auto bg-stone-800/90 p-4 rounded shadow text-dew-dark z-30 space-y-2 max-w-md md:max-w-lg">
           <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
           <div className={`p-1 text-center ${statusColors[connectionStatus]}`}>
             <span className="mr-1">{statusIcons[connectionStatus]}</span>
@@ -292,12 +292,12 @@ export function App() {
           <div className="space-y-2">
             <div>
               <input
-                className="border border-dew bg-soil p-1 mr-2"
+                className="border border-dew-dark bg-soil-light p-1 mr-2"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
               <input
-                className="border border-dew bg-soil p-1 mr-2"
+                className="border border-dew-dark bg-soil-light p-1 mr-2"
                 placeholder="Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -305,21 +305,21 @@ export function App() {
             </div>
             <div>
               <button
-                className="bg-glow text-soil px-2 mr-2"
+                className="bg-glow text-soil-light px-2 mr-2"
                 onClick={connect}
                 disabled={!!socket || !name}
               >
                 Connect
               </button>
               <button
-                className="bg-amber text-soil px-2 mr-2"
+                className="bg-amber text-soil-light px-2 mr-2"
                 onClick={disconnect}
                 disabled={!socket}
               >
                 Disconnect
               </button>
               <button
-                className="bg-moss text-dew px-2 mr-2"
+                className="bg-moss text-dew-dark px-2 mr-2"
                 onClick={toggleReady}
                 disabled={!socket || !lobby || lobby.started}
               >
@@ -327,7 +327,7 @@ export function App() {
               </button>
               {map && (
                 <button
-                  className="bg-dew text-soil px-2 ml-2"
+                  className="bg-dew-dark text-soil-light px-2 ml-2"
                   onClick={() => setVoxel((v) => !v)}
                 >
                   {voxel ? '2D View' : '3D View'}
@@ -335,7 +335,7 @@ export function App() {
               )}
             </div>
             {connectionStatus === 'connected' && latency !== null && (
-              <p className="text-sm text-dew">Latency: {latency} ms</p>
+              <p className="text-sm text-dew-dark">Latency: {latency} ms</p>
             )}
             {!map && lobby && !lobby.started && (
               <div>
@@ -352,7 +352,7 @@ export function App() {
             {isDev && (
               <div>
                 <button
-                  className="bg-glow text-soil px-2 mr-2"
+                  className="bg-glow text-soil-light px-2 mr-2"
                   onClick={() =>
                     setActivePanel({ type: 'colony', name: 'Demo Colony', stars: 3 })
                   }
@@ -360,7 +360,7 @@ export function App() {
                   Show Colony
                 </button>
                 <button
-                  className="bg-glow text-soil px-2"
+                  className="bg-glow text-soil-light px-2"
                   onClick={() => setSelectedSnailId(0)}
                 >
                   Show Snail

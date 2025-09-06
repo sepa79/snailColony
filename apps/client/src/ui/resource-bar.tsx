@@ -19,7 +19,7 @@ export function ResourceBar({ resources }: { resources: Resources }) {
   ] as const;
 
   return (
-    <div className="flex gap-4 bg-soil text-dew p-2">
+    <div className="flex gap-4 bg-soil-light text-dew-dark p-2">
       {items.map(({ key, icon, alt }) => (
         <div key={key} className="flex items-center gap-1">
           <img src={icon} alt={alt} className="w-4 h-4" />
