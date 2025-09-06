@@ -1,7 +1,7 @@
 # PHASES — przegląd
 Prowadź implementację **fazami**. Każda faza ma plik `codex/phase-XX-*.md` z wymaganiami i kryteriami akceptacji.
 
-1. **Faza 01 — Mapa i warstwy**: siatka, typy terenu, punkty zasobów (Biomass, Water), wilgoć.
+1. **Faza 01 — Mapa i warstwy**: siatka, typy terenu, punkty zasobów (Biomass, Water), wilgoć. Proceduralny generator map połączony z dashboardem serwera.
 2. **Faza 02 — Jednostka i ruch**: Worker Snail, Hydration, koszt ruchu po terenie.
 3. **Faza 03 — Śluzowe szlaki**: depozycja, parowanie, wpływ na prędkość i Hydration.
 4. **Faza 04 — Bazy i Kolonie**: magazyny per baza, zbiór/oddawanie, założenie Kolonii.

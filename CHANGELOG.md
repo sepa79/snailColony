@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.10] - 2025-09-07
+### Added
+- Procedural map generator with REST endpoint and dashboard controls for width and height.
+- Terrain legend and responsive server UI that sends the latest map to clients on game start.
+- Unit tests verifying generation and regeneration guards.
+
+### Changed
+- Server dashboard themed to match client with dynamic buttons.
+- Map regeneration disabled once the game has started.
+
 ## [0.1.9] - 2025-09-07
 ### Added
 - Highlight clicked map tiles and dispatch precise move commands so snails move to the chosen square and stop.
