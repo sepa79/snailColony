@@ -77,10 +77,10 @@ export function App() {
     'disconnected' | 'connecting' | 'connected' | 'error',
     string
   > = {
-    disconnected: 'bg-soil text-dew',
-    connecting: 'bg-dew text-soil',
-    connected: 'bg-moss text-dew',
-    error: 'bg-amber text-soil',
+    disconnected: 'bg-stone-700 text-sage-100',
+    connecting: 'bg-sage-400 text-stone-900',
+    connected: 'bg-sage-700 text-stone-100',
+    error: 'bg-brown-600 text-stone-100',
   };
   const statusIcons: Record<
     'disconnected' | 'connecting' | 'connected' | 'error',
@@ -203,7 +203,7 @@ export function App() {
         <ResourceBar resources={inventory ?? {}} />
       </div>
       {activePanel && (
-        <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew">
+        <div className="fixed right-2 top-2">
           {activePanel.type === 'colony' && (
             <ColonyPanel
               name={activePanel.name}
@@ -234,32 +234,32 @@ export function App() {
       {map && <HUD inventory={inventory} goal={goalProgress} />}
       <div className="mb-2">
         <input
-          className="border border-dew bg-soil p-1 mr-2"
+          className="border border-stone-700 bg-stone-800 text-sage-100 p-1 mr-2"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
         <input
-          className="border border-dew bg-soil p-1 mr-2"
+          className="border border-stone-700 bg-stone-800 text-sage-100 p-1 mr-2"
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <button
-          className="bg-glow text-soil px-2 mr-2"
+          className="bg-sage-500 text-stone-900 px-2 mr-2 border border-stone-700 shadow"
           onClick={connect}
           disabled={!!socket || !name}
         >
           Connect
         </button>
         <button
-          className="bg-amber text-soil px-2 mr-2"
+          className="bg-brown-600 text-stone-100 px-2 mr-2 border border-stone-700 shadow"
           onClick={disconnect}
           disabled={!socket}
         >
           Disconnect
         </button>
         <button
-          className="bg-moss text-dew px-2 mr-2"
+          className="bg-sage-700 text-sage-100 px-2 mr-2 border border-stone-700 shadow"
           onClick={toggleReady}
           disabled={!socket || !lobby || lobby.started}
         >
@@ -267,7 +267,7 @@ export function App() {
         </button>
         {map && (
           <button
-            className="bg-dew text-soil px-2 ml-2"
+            className="bg-sage-400 text-stone-900 px-2 ml-2 border border-stone-700 shadow"
             onClick={() => setVoxel((v) => !v)}
           >
             {voxel ? '2D View' : '3D View'}
@@ -277,7 +277,7 @@ export function App() {
       {isDev && (
         <div className="mb-2">
           <button
-            className="bg-glow text-soil px-2 mr-2"
+            className="bg-sage-500 text-stone-900 px-2 mr-2 border border-stone-700 shadow"
             onClick={() =>
               setActivePanel({ type: 'colony', name: 'Demo Colony', stars: 3 })
             }
@@ -285,7 +285,7 @@ export function App() {
             Show Colony
           </button>
           <button
-            className="bg-glow text-soil px-2"
+            className="bg-sage-500 text-stone-900 px-2 border border-stone-700 shadow"
             onClick={() =>
               setActivePanel({ type: 'snail', name: 'Demo Snail', stars: 2 })
             }
@@ -295,7 +295,7 @@ export function App() {
         </div>
       )}
       {connectionStatus === 'connected' && latency !== null && (
-        <p className="text-sm text-dew">Latency: {latency} ms</p>
+        <p className="text-sm text-sage-100">Latency: {latency} ms</p>
       )}
       {!map && lobby && !lobby.started && (
         <div className="mt-4">

@@ -4,7 +4,9 @@ export const Card: React.FC<React.PropsWithChildren<{ className?: string }>> = (
   children,
   className = '',
 }) => (
-  <div className={`bg-white/80 backdrop-blur border rounded shadow-sm ${className}`}>
+  <div
+    className={`bg-stone-800/80 backdrop-blur border border-stone-700 rounded shadow ${className}`}
+  >
     {children}
   </div>
 );

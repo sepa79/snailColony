@@ -39,7 +39,7 @@ const LogColumn = React.memo(function LogColumn({
         <span>{title}</span>
         {onClear && (
           <button
-            className="text-xs text-dew hover:text-moss"
+            className="text-xs text-sage-100 hover:text-sage-300"
             onClick={onClear}
           >
             Clear
@@ -50,7 +50,7 @@ const LogColumn = React.memo(function LogColumn({
         <ul className="text-xs space-y-1">
           {logs.map((log, i) => (
             <li key={i}>
-              <span className="text-gray-500 mr-1">
+              <span className="text-stone-400 mr-1">
                 {new Date(log.ts).toLocaleTimeString()}
               </span>
               {log.msg}
