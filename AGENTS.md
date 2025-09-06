@@ -1,5 +1,6 @@
 # Repository Guidelines
 
+- The server has ultimate authority; clients contain no game logic and only render state and relay inputs.
 - Use `pnpm` for all package operations.
 - When modifying server code, run `pnpm --filter @snail/server lint` and `pnpm --filter @snail/server test`.
 - When modifying client code, run `pnpm --filter @snail/client lint` and `pnpm --filter @snail/client test`.
