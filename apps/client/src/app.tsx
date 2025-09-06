@@ -52,7 +52,8 @@ export function App() {
     | { type: 'snail'; name: string; stars: number }
     | null;
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
-  const isDev = import.meta.env.DEV;
+  // Default to development mode unless explicitly disabled via VITE_DEV=false
+  const isDev = import.meta.env.VITE_DEV !== 'false';
 
   const log = (
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
