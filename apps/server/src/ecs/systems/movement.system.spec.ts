@@ -76,4 +76,16 @@ describe('movementSystem', () => {
     movementSystem(world, map, custom);
     expect(Position.x[eid]).toBeCloseTo(2);
   });
+
+  it('normalizes diagonal movement so it is not faster', () => {
+    const map = makeMap('grass');
+    const { world, eid } = setup(1, 1);
+    movementSystem(world, map, params);
+    const expected = 1 / Math.sqrt(2);
+    expect(Position.x[eid]).toBeCloseTo(expected);
+    expect(Position.y[eid]).toBeCloseTo(expected);
+    // overall distance should equal base speed of 1
+    const dist = Math.hypot(Position.x[eid], Position.y[eid]);
+    expect(dist).toBeCloseTo(1);
+  });
 });

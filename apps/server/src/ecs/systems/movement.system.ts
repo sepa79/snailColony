@@ -36,8 +36,20 @@ export function movementSystem(world: IWorld, map: MapDef, params: Params) {
         }
       }
     }
-    Position.x[eid] += Velocity.dx[eid] * speed;
-    Position.y[eid] += Velocity.dy[eid] * speed;
+
+    // Clamp velocity magnitude so diagonal or large inputs don't exceed base speed
+    let dx = Velocity.dx[eid];
+    let dy = Velocity.dy[eid];
+    const mag = Math.sqrt(dx * dx + dy * dy);
+    if (mag > 1) {
+      dx /= mag;
+      dy /= mag;
+      Velocity.dx[eid] = dx;
+      Velocity.dy[eid] = dy;
+    }
+
+    Position.x[eid] += dx * speed;
+    Position.y[eid] += dy * speed;
   }
   return world;
 }
