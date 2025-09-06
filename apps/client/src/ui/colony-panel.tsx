@@ -4,16 +4,20 @@ interface ColonyPanelProps {
   name: string;
   stars: number;
   onClose: () => void;
+  clearSelection: () => void;
 }
 
-export function ColonyPanel({ name, stars, onClose }: ColonyPanelProps) {
+export function ColonyPanel({ name, stars, onClose, clearSelection }: ColonyPanelProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg font-bold">{name}</h2>
         <Button
           variant="ghost"
-          onClick={onClose}
+          onClick={() => {
+            clearSelection();
+            onClose();
+          }}
           aria-label="Close"
           className="hover:text-amber"
         >

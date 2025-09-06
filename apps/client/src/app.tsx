@@ -60,6 +60,10 @@ export function App() {
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   const [selectedSnailId, setSelectedSnailId] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(true);
+  const clearSelection = () => {
+    setSelectedSnailId(null);
+    // Future colony-selection state can be reset here
+  };
   // Default to development mode unless explicitly disabled via VITE_DEV=false
   const isDev = import.meta.env.VITE_DEV !== 'false';
 
@@ -190,7 +194,8 @@ export function App() {
     setGoalProgress(null);
     setUpkeepLogs([]);
     setGoalLogs([]);
-    setSelectedSnailId(null);
+    clearSelection();
+    setActivePanel(null);
   };
 
   const toggleReady = () => {
@@ -207,7 +212,7 @@ export function App() {
     name: string;
     stars: number;
   }) => {
-    setSelectedSnailId(null);
+    clearSelection();
     setActivePanel({ type: 'colony', name, stars });
   };
 
@@ -260,7 +265,7 @@ export function App() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setSelectedSnailId(null);
+        clearSelection();
         setActivePanel(null);
       }
     };
@@ -331,12 +336,14 @@ export function App() {
                   name={activePanel.name}
                   stars={activePanel.stars}
                   onClose={() => setActivePanel(null)}
+                  clearSelection={clearSelection}
                 />
               )}
               {activePanel.type === 'snail' && (
                 <SnailPanel
                   snail={activePanel.snail}
                   onClose={() => setActivePanel(null)}
+                  clearSelection={clearSelection}
                 />
               )}
             </Card>

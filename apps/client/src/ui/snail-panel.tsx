@@ -9,9 +9,10 @@ import { StarRating, Button } from './components';
 interface SnailPanelProps {
   snail: Snail;
   onClose: () => void;
+  clearSelection: () => void;
 }
 
-export function SnailPanel({ snail, onClose }: SnailPanelProps) {
+export function SnailPanel({ snail, onClose, clearSelection }: SnailPanelProps) {
   const stats = [
     { label: 'Brain', icon: brainIcon, value: snail.brain },
     { label: 'Speed', icon: speedIcon, value: snail.speed },
@@ -26,7 +27,10 @@ export function SnailPanel({ snail, onClose }: SnailPanelProps) {
         <h2 className="text-lg font-bold">{snail.name}</h2>
         <Button
           variant="ghost"
-          onClick={onClose}
+          onClick={() => {
+            clearSelection();
+            onClose();
+          }}
           aria-label="Close"
           className="hover:text-amber"
         >
