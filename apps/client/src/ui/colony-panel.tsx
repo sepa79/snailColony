@@ -1,3 +1,5 @@
+import { StarRating } from './components';
+
 interface ColonyPanelProps {
   name: string;
   stars: number;
@@ -18,9 +20,7 @@ export function ColonyPanel({ name, stars, onClose }: ColonyPanelProps) {
         </button>
       </div>
       <div className="mb-4">
-        {Array.from({ length: stars }).map((_, i) => (
-          <span key={i}>⭐</span>
-        ))}
+        <StarRating stars={stars} />
       </div>
       <div className="flex gap-2">
         <button className="bg-moss text-soil px-2 py-1 rounded">Upgrade</button>

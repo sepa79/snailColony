@@ -9,6 +9,7 @@ import { ResourceBar, type Resources } from './ui/resource-bar';
 import { ColonyPanel } from './ui/colony-panel';
 import { SnailPanel } from './ui/snail-panel';
 import { MapDef, ServerMessage, GameParams } from '@snail/protocol';
+import type { Snail } from './game/snail';
 
 const LOG_LIMIT = 100;
 
@@ -49,7 +50,7 @@ export function App() {
   } | null>(null);
   type ActivePanel =
     | { type: 'colony'; name: string; stars: number }
-    | { type: 'snail'; name: string; stars: number }
+    | { type: 'snail'; snail: Snail }
     | null;
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
   // Default to development mode unless explicitly disabled via VITE_DEV=false
@@ -213,8 +214,7 @@ export function App() {
           )}
           {activePanel.type === 'snail' && (
             <SnailPanel
-              name={activePanel.name}
-              stars={activePanel.stars}
+              snail={activePanel.snail}
               onClose={() => setActivePanel(null)}
             />
           )}
@@ -287,7 +287,18 @@ export function App() {
           <button
             className="bg-glow text-soil px-2"
             onClick={() =>
-              setActivePanel({ type: 'snail', name: 'Demo Snail', stars: 2 })
+              setActivePanel({
+                type: 'snail',
+                snail: {
+                  name: 'Demo Snail',
+                  stars: 2,
+                  brain: 1,
+                  speed: 2,
+                  shell: 3,
+                  storage: 4,
+                  sync: 2,
+                },
+              })
             }
           >
             Show Snail
