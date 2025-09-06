@@ -1,4 +1,10 @@
-import { MapDef } from '@snail/protocol';
+import type {
+  MapDef,
+  TerrainType,
+  WaterLayer,
+  GrassLayer,
+  Structure,
+} from '@snail/protocol';
 import { tileAt } from '../game/terrain';
 import { findPath, PathParams } from './pathfinding';
 import { pioneer } from './pioneer';
@@ -11,18 +17,56 @@ const terrainParams = {
 const params: PathParams = { terrain: terrainParams, k: 2 };
 
 function mapWithSlime(bottom: number): MapDef {
+  const sidewalk = 'sidewalk' as unknown as TerrainType;
+
   return {
     width: 3,
     height: 2,
     version: 1,
     moisture: 0,
     tiles: [
-      { terrain: 'sidewalk' as any, water: 'None' as any, grass: 'None' as any, structure: 'None' as any, slime_intensity: 0 },
-      { terrain: 'sidewalk' as any, water: 'None' as any, grass: 'None' as any, structure: 'None' as any, slime_intensity: 0 },
-      { terrain: 'sidewalk' as any, water: 'None' as any, grass: 'None' as any, structure: 'None' as any, slime_intensity: 0 },
-      { terrain: 'sidewalk' as any, water: 'None' as any, grass: 'None' as any, structure: 'None' as any, slime_intensity: bottom },
-      { terrain: 'sidewalk' as any, water: 'None' as any, grass: 'None' as any, structure: 'None' as any, slime_intensity: bottom },
-      { terrain: 'sidewalk' as any, water: 'None' as any, grass: 'None' as any, structure: 'None' as any, slime_intensity: bottom },
+      {
+        terrain: sidewalk,
+        water: 'None' as WaterLayer,
+        grass: 'None' as GrassLayer,
+        structure: 'None' as Structure,
+        slime_intensity: 0,
+      },
+      {
+        terrain: sidewalk,
+        water: 'None' as WaterLayer,
+        grass: 'None' as GrassLayer,
+        structure: 'None' as Structure,
+        slime_intensity: 0,
+      },
+      {
+        terrain: sidewalk,
+        water: 'None' as WaterLayer,
+        grass: 'None' as GrassLayer,
+        structure: 'None' as Structure,
+        slime_intensity: 0,
+      },
+      {
+        terrain: sidewalk,
+        water: 'None' as WaterLayer,
+        grass: 'None' as GrassLayer,
+        structure: 'None' as Structure,
+        slime_intensity: bottom,
+      },
+      {
+        terrain: sidewalk,
+        water: 'None' as WaterLayer,
+        grass: 'None' as GrassLayer,
+        structure: 'None' as Structure,
+        slime_intensity: bottom,
+      },
+      {
+        terrain: sidewalk,
+        water: 'None' as WaterLayer,
+        grass: 'None' as GrassLayer,
+        structure: 'None' as Structure,
+        slime_intensity: bottom,
+      },
     ],
   };
 }
