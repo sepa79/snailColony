@@ -207,8 +207,40 @@ export function App() {
   };
 
   useEffect(() => {
+    if (selectedSnailId === null) {
+      setActivePanel(null);
+      return;
+    }
+
+    const entity = snapshot?.entities.find((e) => e.id === selectedSnailId);
+
+    const snail: Snail = entity
+      ? {
+          name: `Snail ${entity.id}`,
+          stars: 1,
+          brain: 0,
+          speed: 0,
+          shell: 0,
+          storage: 0,
+          sync: 0,
+        }
+      : {
+          name: `Snail ${selectedSnailId}`,
+          stars: 1,
+          brain: 0,
+          speed: 0,
+          shell: 0,
+          storage: 0,
+          sync: 0,
+        };
+
+    setActivePanel({ type: 'snail', snail });
+  }, [selectedSnailId, snapshot]);
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        setSelectedSnailId(null);
         setActivePanel(null);
       }
     };
