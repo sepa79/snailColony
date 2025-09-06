@@ -10,14 +10,21 @@ interface LogConsoleProps {
   systemLogs: LogEntry[];
   upkeepLogs: LogEntry[];
   goalLogs: LogEntry[];
+  onClearIn?: () => void;
+  onClearOut?: () => void;
+  onClearSystem?: () => void;
+  onClearUpkeep?: () => void;
+  onClearGoal?: () => void;
 }
 
 const LogColumn = React.memo(function LogColumn({
   title,
   logs,
+  onClear,
 }: {
   title: string;
   logs: LogEntry[];
+  onClear?: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -28,7 +35,17 @@ const LogColumn = React.memo(function LogColumn({
 
   return (
     <Card className="h-48 flex flex-col">
-      <h3 className="font-semibold mb-1 text-sm px-2 pt-2">{title}</h3>
+      <div className="flex justify-between items-center mb-1 px-2 pt-2">
+        <h3 className="font-semibold text-sm">{title}</h3>
+        {onClear && (
+          <button
+            className="text-xs text-blue-600 hover:underline"
+            onClick={onClear}
+          >
+            Clear
+          </button>
+        )}
+      </div>
       <div ref={ref} className="flex-1 overflow-auto px-2 pb-2">
         <ul className="text-xs space-y-1">
           {logs.map((log, i) => (
@@ -51,14 +68,19 @@ export function LogConsole({
   systemLogs,
   upkeepLogs,
   goalLogs,
+  onClearIn,
+  onClearOut,
+  onClearSystem,
+  onClearUpkeep,
+  onClearGoal,
 }: LogConsoleProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mt-4">
-      <LogColumn title="IN" logs={inLogs} />
-      <LogColumn title="OUT" logs={outLogs} />
-      <LogColumn title="System" logs={systemLogs} />
-      <LogColumn title="Upkeep" logs={upkeepLogs} />
-      <LogColumn title="Goal" logs={goalLogs} />
+      <LogColumn title="IN" logs={inLogs} onClear={onClearIn} />
+      <LogColumn title="OUT" logs={outLogs} onClear={onClearOut} />
+      <LogColumn title="System" logs={systemLogs} onClear={onClearSystem} />
+      <LogColumn title="Upkeep" logs={upkeepLogs} onClear={onClearUpkeep} />
+      <LogColumn title="Goal" logs={goalLogs} onClear={onClearGoal} />
     </div>
   );
 }

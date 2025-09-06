@@ -39,17 +39,25 @@ export function App() {
     started: boolean;
   } | null>(null);
 
+  const LOG_LIMIT = 200;
+
   const log = (
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
   ) =>
     (msg: string) =>
-      setter((l) => [...l, { ts: Date.now(), msg }]);
+      setter((l) => [...l.slice(-LOG_LIMIT + 1), { ts: Date.now(), msg }]);
 
   const logIn = log(setInLogs);
   const logOut = log(setOutLogs);
   const logSys = log(setSystemLogs);
   const logUpkeep = log(setUpkeepLogs);
   const logGoal = log(setGoalLogs);
+
+  const clearInLogs = () => setInLogs([]);
+  const clearOutLogs = () => setOutLogs([]);
+  const clearSystemLogs = () => setSystemLogs([]);
+  const clearUpkeepLogs = () => setUpkeepLogs([]);
+  const clearGoalLogs = () => setGoalLogs([]);
 
   const connect = () => {
     let target = url;
@@ -222,6 +230,11 @@ export function App() {
             systemLogs={systemLogs}
             upkeepLogs={upkeepLogs}
             goalLogs={goalLogs}
+            onClearIn={clearInLogs}
+            onClearOut={clearOutLogs}
+            onClearSystem={clearSystemLogs}
+            onClearUpkeep={clearUpkeepLogs}
+            onClearGoal={clearGoalLogs}
           />
         </div>
       </div>
