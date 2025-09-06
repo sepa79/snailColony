@@ -42,7 +42,10 @@ export function App() {
   const latency = useLatency(socket);
   const [voxel, setVoxel] = useState(false);
   const [ready, setReady] = useState(false);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(() => {
+    if (typeof localStorage === 'undefined') return '';
+    return localStorage.getItem('playerName') ?? '';
+  });
   const [lobby, setLobby] = useState<{
     players: { name: string; ready: boolean }[];
     started: boolean;
@@ -70,6 +73,10 @@ export function App() {
   const clearSystemLogs = () => setSystemLogs([]);
   const clearUpkeepLogs = () => setUpkeepLogs([]);
   const clearGoalLogs = () => setGoalLogs([]);
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') return;
+    localStorage.setItem('playerName', name);
+  }, [name]);
 
   const statusColors: Record<
     'disconnected' | 'connecting' | 'connected' | 'error',
