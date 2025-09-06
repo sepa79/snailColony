@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2025-09-06
+### Added
+- Debug buttons for colony and snail panels.
+### Changed
+- Default to development mode using Vite's `import.meta.env.DEV`.
+
 ## [0.1.6] - 2025-09-05
 ### Added
 - Single persistent lobby with readiness gating before game start
