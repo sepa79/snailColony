@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useLatency } from './net/use-latency';
 import { EntityStatus } from './ui/entity-status';
 import { LogConsole, LogEntry } from './ui/log-console';
@@ -260,64 +261,80 @@ export function App() {
       {/* Overlays */}
       {map && <HUD inventory={inventory} goal={goalProgress} />}
 
-      {activePanel && (
-        <Card
-          className="absolute top-2 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:left-auto sm:right-2 sm:translate-x-0 sm:w-auto p-4 z-30 min-w-[200px] md:min-w-[250px]"
-        >
-          {activePanel.type === 'colony' && (
-            <ColonyPanel
-              name={activePanel.name}
-              stars={activePanel.stars}
-              onClose={() => setActivePanel(null)}
-            />
-          )}
-          {activePanel.type === 'snail' && (
-            <SnailPanel
-              snail={activePanel.snail}
-              onClose={() => setActivePanel(null)}
-            />
-          )}
-        </Card>
-      )}
-      {menuOpen && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:left-2 sm:translate-x-0 sm:w-auto bg-stone-800/90 p-4 rounded shadow text-dew-dark z-30 space-y-2 max-w-md md:max-w-lg">
-          <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
-          <div className={`p-1 text-center ${statusColors[connectionStatus]}`}>
-            <span className="mr-1">{statusIcons[connectionStatus]}</span>
-            {statusText[connectionStatus]}
-            {connectionStatus === 'error' && errorMessage && (
-              <span className="ml-1">{errorMessage}</span>
-            )}
-          </div>
-          <div className="space-y-2">
-            <div>
-              <input
-                className="border border-dew-dark bg-soil-light p-1 mr-2"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-              />
-              <input
-                className="border border-dew-dark bg-soil-light p-1 mr-2"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+      <AnimatePresence>
+        {activePanel && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Card
+              className="absolute top-2 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:left-auto sm:right-2 sm:translate-x-0 sm:w-auto p-4 z-30 min-w-[200px] md:min-w-[250px]"
+            >
+              {activePanel.type === 'colony' && (
+                <ColonyPanel
+                  name={activePanel.name}
+                  stars={activePanel.stars}
+                  onClose={() => setActivePanel(null)}
+                />
+              )}
+              {activePanel.type === 'snail' && (
+                <SnailPanel
+                  snail={activePanel.snail}
+                  onClose={() => setActivePanel(null)}
+                />
+              )}
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="absolute top-16 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:left-2 sm:translate-x-0 sm:w-auto bg-stone-800/90 p-4 rounded shadow text-dew-dark z-30 space-y-2 max-w-md md:max-w-lg"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
+            <div className={`p-1 text-center ${statusColors[connectionStatus]}`}>
+              <span className="mr-1">{statusIcons[connectionStatus]}</span>
+              {statusText[connectionStatus]}
+              {connectionStatus === 'error' && errorMessage && (
+                <span className="ml-1">{errorMessage}</span>
+              )}
             </div>
-            <div>
-              <button
-                className="bg-glow text-soil-light px-2 mr-2"
-                onClick={connect}
-                disabled={!!socket || !name}
-              >
-                Connect
-              </button>
-              <button
-                className="bg-amber text-soil-light px-2 mr-2"
-                onClick={disconnect}
-                disabled={!socket}
-              >
-                Disconnect
-              </button>
+            <div className="space-y-2">
+              <div>
+                <input
+                  className="border border-dew-dark bg-soil-light p-1 mr-2"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                />
+                <input
+                  className="border border-dew-dark bg-soil-light p-1 mr-2"
+                  placeholder="Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              <div>
+                <button
+                  className="bg-glow text-soil-light px-2 mr-2"
+                  onClick={connect}
+                  disabled={!!socket || !name}
+                >
+                  Connect
+                </button>
+                <button
+                  className="bg-amber text-soil-light px-2 mr-2"
+                  onClick={disconnect}
+                  disabled={!socket}
+                >
+                  Disconnect
+                </button>
               <button
                 className="bg-moss text-dew-dark px-2 mr-2"
                 onClick={toggleReady}
@@ -368,8 +385,9 @@ export function App() {
               </div>
             )}
           </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Position panel */}
       {snapshot && snapshot.entities[0] && (
