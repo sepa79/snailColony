@@ -52,7 +52,7 @@ export function App() {
     | { type: 'snail'; name: string; stars: number }
     | null;
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
-  const isDev = import.meta.env.MODE !== 'production';
+  const isDev = import.meta.env.DEV;
 
   const log = (
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
