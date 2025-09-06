@@ -63,4 +63,15 @@ describe('MapService', () => {
     expect(() => validateMap(map)).toThrow();
   });
 
+  it('generates maps of requested size', () => {
+    const svc = new MapService();
+    const rand = Math.random;
+    Math.random = () => 0.5;
+    const map = svc.generate('test', 3, 4);
+    Math.random = rand;
+    expect(map.width).toBe(3);
+    expect(map.height).toBe(4);
+    expect(map.tiles).toHaveLength(12);
+    expect(map.tiles[0].structure).toBe(Structure.Colony);
+  });
 });

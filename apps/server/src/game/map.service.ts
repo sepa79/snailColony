@@ -3,6 +3,7 @@ import { MapDef, Tile } from '@snail/protocol';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import params from '../config';
+import { generateMap } from './map-generator';
 
 @Injectable()
 export class MapService {
@@ -27,6 +28,14 @@ export class MapService {
       this.cache = parsed;
     }
     return this.cache;
+  }
+
+  generate(roomId: string, width = 5, height = 5): MapDef {
+    void roomId;
+    const map = generateMap(width, height, params);
+    validateMap(map);
+    this.cache = map;
+    return map;
   }
 }
 export function validateMap(map: MapDef) {
