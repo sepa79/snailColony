@@ -215,8 +215,34 @@ export function App() {
   }, [map]);
 
   return (
-    <>
-      <div className="fixed top-0 left-0 right-0 z-10">
+    <div className="relative w-screen h-screen bg-soil">
+      {/* Map centered with accent border taking 90% of viewport */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative w-[90vw] h-[90vh] border-4 border-glow">
+          {map && (
+            voxel ? (
+              <Map3DView
+                map={map}
+                entities={snapshot?.entities ?? []}
+                selectedId={selectedSnailId}
+                onSelect={setSelectedSnailId}
+                onCommand={sendCommand}
+              />
+            ) : (
+              <MapView
+                map={map}
+                entities={snapshot?.entities ?? []}
+                selectedId={selectedSnailId}
+                onSelect={setSelectedSnailId}
+                onCommand={sendCommand}
+              />
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Resource bar and menu button */}
+      <div className="absolute top-0 left-0 right-0 z-20">
         <ResourceBar resources={inventory ?? {}} />
         <button
           className="absolute top-2 right-2 bg-stone-800/90 px-2 py-1 rounded text-dew"
@@ -225,8 +251,12 @@ export function App() {
           Menu
         </button>
       </div>
+
+      {/* Overlays */}
+      {map && <HUD inventory={inventory} goal={goalProgress} />}
+
       {activePanel && (
-        <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew z-10">
+        <div className="absolute right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew z-30">
           {activePanel.type === 'colony' && (
             <ColonyPanel
               name={activePanel.name}
@@ -236,8 +266,9 @@ export function App() {
           )}
         </div>
       )}
+
       {selectedSnailId !== null && (
-        <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew z-10">
+        <div className="absolute right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew z-30">
           <SnailPanel
             name={`Snail ${selectedSnailId}`}
             stars={0}
@@ -245,12 +276,11 @@ export function App() {
           />
         </div>
       )}
+
       {menuOpen && (
-        <div className="fixed top-16 left-2 bg-stone-800/90 p-4 rounded shadow text-dew z-10 space-y-2 max-w-md">
+        <div className="absolute top-16 left-2 bg-stone-800/90 p-4 rounded shadow text-dew z-30 space-y-2 max-w-md">
           <h1 className="text-xl font-bold mb-2 text-glow">SnailColony</h1>
-          <div
-            className={`p-1 text-center ${statusColors[connectionStatus]}`}
-          >
+          <div className={`p-1 text-center ${statusColors[connectionStatus]}`}>
             <span className="mr-1">{statusIcons[connectionStatus]}</span>
             {statusText[connectionStatus]}
             {connectionStatus === 'error' && errorMessage && (
@@ -338,65 +368,41 @@ export function App() {
           </div>
         </div>
       )}
-      {map && <HUD inventory={inventory} goal={goalProgress} />}
-      <div className="fixed inset-0 p-4 pt-16 flex flex-col">
-        <div className="mt-4 flex flex-1 min-h-0">
-          {map && (
-            <div className="flex-1 h-full min-h-0">
-              {voxel ? (
-                <Map3DView
-                  map={map}
-                  entities={snapshot?.entities ?? []}
-                  selectedId={selectedSnailId}
-                  onSelect={setSelectedSnailId}
-                  onCommand={sendCommand}
-                />
-              ) : (
-                <MapView
-                  map={map}
-                  entities={snapshot?.entities ?? []}
-                  selectedId={selectedSnailId}
-                  onSelect={setSelectedSnailId}
-                  onCommand={sendCommand}
-                />
-              )}
-          </div>
-        )}
-        <div className="ml-4 w-64">
-          {snapshot && snapshot.entities[0] && (
-            <div className="mb-4">
-              <EntityStatus
-                x={snapshot.entities[0].x}
-                y={snapshot.entities[0].y}
-                hydration={snapshot.entities[0].hydration}
-                slimeBonus={(() => {
-                  if (!map || !params) return 0;
-                  const sx = Math.floor(snapshot.entities[0].x);
-                  const sy = Math.floor(snapshot.entities[0].y);
-                  const tile = map.tiles[sy * map.width + sx];
-                  if (!tile) return 0;
-                  return (
-                    tile.slime_intensity * params.slime.speed_bonus_max * 100
-                  );
-                })()}
-              />
-            </div>
-          )}
-          <LogConsole
-            inLogs={inLogs}
-            outLogs={outLogs}
-            systemLogs={systemLogs}
-            upkeepLogs={upkeepLogs}
-            goalLogs={goalLogs}
-            onClearIn={clearInLogs}
-            onClearOut={clearOutLogs}
-            onClearSystem={clearSystemLogs}
-            onClearUpkeep={clearUpkeepLogs}
-            onClearGoal={clearGoalLogs}
+
+      {/* Position panel */}
+      {snapshot && snapshot.entities[0] && (
+        <div className="absolute bottom-2 right-2 z-30">
+          <EntityStatus
+            x={snapshot.entities[0].x}
+            y={snapshot.entities[0].y}
+            hydration={snapshot.entities[0].hydration}
+            slimeBonus={(() => {
+              if (!map || !params) return 0;
+              const sx = Math.floor(snapshot.entities[0].x);
+              const sy = Math.floor(snapshot.entities[0].y);
+              const tile = map.tiles[sy * map.width + sx];
+              if (!tile) return 0;
+              return tile.slime_intensity * params.slime.speed_bonus_max * 100;
+            })()}
           />
         </div>
+      )}
+
+      {/* Logs overlay */}
+      <div className="absolute bottom-2 left-2 z-30 max-w-[90vw]">
+        <LogConsole
+          inLogs={inLogs}
+          outLogs={outLogs}
+          systemLogs={systemLogs}
+          upkeepLogs={upkeepLogs}
+          goalLogs={goalLogs}
+          onClearIn={clearInLogs}
+          onClearOut={clearOutLogs}
+          onClearSystem={clearSystemLogs}
+          onClearUpkeep={clearUpkeepLogs}
+          onClearGoal={clearGoalLogs}
+        />
       </div>
     </div>
-    </>
   );
 }
