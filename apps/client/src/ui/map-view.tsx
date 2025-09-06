@@ -53,6 +53,7 @@ interface MapViewProps {
   selectedId: number | null;
   onSelect: (id: number) => void;
   onCommand: (cmd: { t: 'Move'; dx: number; dy: number }) => void;
+  onColonySelect: (colony: { name: string; stars: number }) => void;
 }
 
 export function MapView({
@@ -61,6 +62,7 @@ export function MapView({
   selectedId,
   onSelect,
   onCommand,
+  onColonySelect,
 }: MapViewProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<PIXI.Application | null>(null);
@@ -68,6 +70,7 @@ export function MapView({
   const entityLayerRef = useRef<PIXI.Container | null>(null);
   const highlightRef = useRef<PIXI.Graphics | null>(null);
   const entityRefs = useRef<Map<number, PIXI.Graphics>>(new Map());
+  const snailClickRef = useRef(false);
 
   useEffect(() => {
     if (!rootRef.current) return;
@@ -296,7 +299,10 @@ export function MapView({
         g.eventMode = 'static';
         g.cursor = 'pointer';
         g.on('pointerdown', (e: PIXI.FederatedPointerEvent) => {
-          if (e.button === 0) onSelect(ent.id);
+          if (e.button === 0) {
+            snailClickRef.current = true;
+            onSelect(ent.id);
+          }
         });
         entityLayer.addChild(g);
         refs.set(ent.id, g);
@@ -311,6 +317,46 @@ export function MapView({
       g.y = py;
     });
   }, [entities, selectedId, onSelect]);
+
+  // handle colony selection
+  useEffect(() => {
+    const app = appRef.current;
+    const camera = cameraRef.current;
+    if (!app || !camera) return;
+    const view = app.view as HTMLCanvasElement;
+
+    const onClick = (e: MouseEvent) => {
+      if (snailClickRef.current) {
+        snailClickRef.current = false;
+        return;
+      }
+      const rect = view.getBoundingClientRect();
+      const mx = e.clientX - rect.left - camera.x;
+      const my = e.clientY - rect.top - camera.y;
+      const tileX = Math.floor(
+        (my / (TILE_H / 2) + mx / (TILE_W / 2)) / 2,
+      );
+      const tileY = Math.floor(
+        (my / (TILE_H / 2) - mx / (TILE_W / 2)) / 2,
+      );
+      if (
+        tileX >= 0 &&
+        tileY >= 0 &&
+        tileX < map.width &&
+        tileY < map.height
+      ) {
+        const tile = map.tiles[tileY * map.width + tileX];
+        if (tile.structure === Structure.Colony) {
+          onColonySelect({ name: `Colony (${tileX},${tileY})`, stars: 1 });
+        }
+      }
+    };
+
+    view.addEventListener('click', onClick);
+    return () => {
+      view.removeEventListener('click', onClick);
+    };
+  }, [map, onColonySelect]);
 
   // handle right click commands
   useEffect(() => {
