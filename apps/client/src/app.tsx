@@ -7,6 +7,8 @@ import { Map3DView } from './ui/map-3d-view';
 import { HUD } from './ui/hud';
 import { MapDef, ServerMessage, GameParams } from '@snail/protocol';
 
+const LOG_LIMIT = 100;
+
 export function App() {
   const [url, setUrl] = useState('localhost:3000');
   const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -47,13 +49,19 @@ export function App() {
     setter: React.Dispatch<React.SetStateAction<LogEntry[]>>,
   ) =>
     (msg: string) =>
-      setter((l) => [...l, { ts: Date.now(), msg }]);
+      setter((l) => [...l.slice(-LOG_LIMIT + 1), { ts: Date.now(), msg }]);
 
   const logIn = log(setInLogs);
   const logOut = log(setOutLogs);
   const logSys = log(setSystemLogs);
   const logUpkeep = log(setUpkeepLogs);
   const logGoal = log(setGoalLogs);
+
+  const clearInLogs = () => setInLogs([]);
+  const clearOutLogs = () => setOutLogs([]);
+  const clearSystemLogs = () => setSystemLogs([]);
+  const clearUpkeepLogs = () => setUpkeepLogs([]);
+  const clearGoalLogs = () => setGoalLogs([]);
 
   const statusColors: Record<
     'disconnected' | 'connecting' | 'connected' | 'error',
@@ -271,6 +279,11 @@ export function App() {
             systemLogs={systemLogs}
             upkeepLogs={upkeepLogs}
             goalLogs={goalLogs}
+            onClearIn={clearInLogs}
+            onClearOut={clearOutLogs}
+            onClearSystem={clearSystemLogs}
+            onClearUpkeep={clearUpkeepLogs}
+            onClearGoal={clearGoalLogs}
           />
         </div>
       </div>
