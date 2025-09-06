@@ -23,3 +23,17 @@ export function ProgressBar({ value, color = 'bg-green-500' }: ProgressBarProps)
   );
 }
 
+interface StarRatingProps {
+  stars: number;
+}
+
+export function StarRating({ stars }: StarRatingProps) {
+  return (
+    <div>
+      {Array.from({ length: stars }).map((_, i) => (
+        <span key={i}>⭐</span>
+      ))}
+    </div>
+  );
+}
+

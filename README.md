@@ -44,4 +44,4 @@ pnpm test
 - [PLAN](PLAN.md)
 - [STAGE](STAGE.md)
 
-Current version: 0.1.7
+Current version: 0.1.8
