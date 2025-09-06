@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.11] - 2025-09-08
+### Added
+- Snail panel opens automatically when selecting a snail and refreshes when choosing another.
+- Clicking colony tiles now reveals a colony panel with details.
+
 ## [0.1.10] - 2025-09-07
 ### Added
 - Procedural map generator with REST endpoint and dashboard controls for width and height.
