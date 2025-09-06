@@ -47,19 +47,36 @@ const resourceColors = {
 
 interface Map3DViewProps {
   map: MapDef;
+  entities: { id: number; x: number; y: number }[];
+  selectedId: number | null;
+  onSelect: (id: number) => void;
+  onCommand: (cmd: { t: 'Move'; dx: number; dy: number }) => void;
 }
 
-export function Map3DView({ map }: Map3DViewProps) {
+export function Map3DView({
+  map,
+  entities,
+  selectedId,
+  onSelect,
+  onCommand,
+}: Map3DViewProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const snailGroupRef = useRef<THREE.Group | null>(null);
+  const snailMeshRef = useRef<Map<number, THREE.Mesh>>(new Map());
 
   useEffect(() => {
     const mount = rootRef.current;
     if (!mount) return;
 
     const scene = new THREE.Scene();
+    sceneRef.current = scene;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
+    rendererRef.current = renderer;
     mount.appendChild(renderer.domElement);
 
     const camera = new THREE.PerspectiveCamera(
@@ -71,6 +88,7 @@ export function Map3DView({ map }: Map3DViewProps) {
     const initialPos = new THREE.Vector3(map.width, map.width, map.height);
     camera.position.copy(initialPos);
     camera.lookAt(new THREE.Vector3(map.width / 2, 0, map.height / 2));
+    cameraRef.current = camera;
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(map.width / 2, 0, map.height / 2);
@@ -92,6 +110,9 @@ export function Map3DView({ map }: Map3DViewProps) {
     const slimeMeshes: THREE.Mesh[] = [];
     const resourceGroup = new THREE.Group();
     scene.add(resourceGroup);
+    const snailGroup = new THREE.Group();
+    snailGroupRef.current = snailGroup;
+    scene.add(snailGroup);
 
     const terrainGeom = new THREE.BoxGeometry(1, 0.1, 1);
     const waterThin = new THREE.BoxGeometry(1, 0.05, 1);
@@ -254,6 +275,83 @@ export function Map3DView({ map }: Map3DViewProps) {
       mount.removeChild(renderer.domElement);
     };
   }, [map]);
+
+  // update snail meshes
+  useEffect(() => {
+    const group = snailGroupRef.current;
+    if (!group) return;
+    const refs = snailMeshRef.current;
+
+    for (const [id, mesh] of Array.from(refs.entries())) {
+      if (!entities.find((e) => e.id === id)) {
+        group.remove(mesh);
+        refs.delete(id);
+      }
+    }
+
+    entities.forEach((ent) => {
+      let mesh = refs.get(ent.id);
+      if (!mesh) {
+        const geom = new THREE.SphereGeometry(0.3, 16, 16);
+        const mat = new THREE.MeshLambertMaterial({ color: 0xffff00 });
+        mesh = new THREE.Mesh(geom, mat);
+        mesh.userData = { id: ent.id };
+        group.add(mesh);
+        refs.set(ent.id, mesh);
+      }
+      mesh.position.set(ent.x, 0.3, ent.y);
+      const mat = mesh.material as THREE.MeshLambertMaterial;
+      mat.color.set(ent.id === selectedId ? 0xff0000 : 0xffff00);
+    });
+  }, [entities, selectedId]);
+
+  // handle interactions
+  useEffect(() => {
+    const renderer = rendererRef.current;
+    const camera = cameraRef.current;
+    if (!renderer || !camera) return;
+    const dom = renderer.domElement;
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+    const onContext = (e: MouseEvent) => e.preventDefault();
+    const onPointer = (e: PointerEvent) => {
+      const rect = dom.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      if (e.button === 0) {
+        const hits = raycaster.intersectObjects(
+          Array.from(snailMeshRef.current.values()),
+        );
+        if (hits.length > 0) {
+          const id = (hits[0].object as THREE.Mesh).userData.id;
+          onSelect(id);
+        }
+      } else if (e.button === 2) {
+        e.preventDefault();
+        if (selectedId == null) return;
+        const point = new THREE.Vector3();
+        if (raycaster.ray.intersectPlane(plane, point)) {
+          const snail = entities.find((s) => s.id === selectedId);
+          if (!snail) return;
+          const sx = Math.floor(snail.x);
+          const sy = Math.floor(snail.y);
+          const tx = Math.floor(point.x);
+          const ty = Math.floor(point.z);
+          onCommand({ t: 'Move', dx: tx - sx, dy: ty - sy });
+        }
+      }
+    };
+
+    dom.addEventListener('pointerdown', onPointer);
+    dom.addEventListener('contextmenu', onContext);
+    return () => {
+      dom.removeEventListener('pointerdown', onPointer);
+      dom.removeEventListener('contextmenu', onContext);
+    };
+  }, [entities, selectedId, onSelect, onCommand]);
 
   return <div ref={rootRef} className="w-full h-96" />;
 }

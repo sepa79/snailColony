@@ -47,11 +47,9 @@ export function App() {
     players: { name: string; ready: boolean }[];
     started: boolean;
   } | null>(null);
-  type ActivePanel =
-    | { type: 'colony'; name: string; stars: number }
-    | { type: 'snail'; name: string; stars: number }
-    | null;
+  type ActivePanel = { type: 'colony'; name: string; stars: number } | null;
   const [activePanel, setActivePanel] = useState<ActivePanel>(null);
+  const [selectedSnailId, setSelectedSnailId] = useState<number | null>(null);
   // Default to development mode unless explicitly disabled via VITE_DEV=false
   const isDev = import.meta.env.VITE_DEV !== 'false';
 
@@ -178,11 +176,18 @@ export function App() {
     setGoalProgress(null);
     setUpkeepLogs([]);
     setGoalLogs([]);
+    setSelectedSnailId(null);
   };
 
   const toggleReady = () => {
     if (!socket) return;
     const cmd = { t: 'SetReady', ready: !ready } as const;
+    logOut(JSON.stringify(cmd));
+    socket.send(JSON.stringify(cmd));
+  };
+
+  const sendCommand = (cmd: { t: 'Move'; dx: number; dy: number }) => {
+    if (!socket) return;
     logOut(JSON.stringify(cmd));
     socket.send(JSON.stringify(cmd));
   };
@@ -211,13 +216,15 @@ export function App() {
               onClose={() => setActivePanel(null)}
             />
           )}
-          {activePanel.type === 'snail' && (
-            <SnailPanel
-              name={activePanel.name}
-              stars={activePanel.stars}
-              onClose={() => setActivePanel(null)}
-            />
-          )}
+        </div>
+      )}
+      {selectedSnailId !== null && (
+        <div className="fixed right-2 top-2 bg-stone-800/90 p-4 rounded shadow text-dew">
+          <SnailPanel
+            name={`Snail ${selectedSnailId}`}
+            stars={0}
+            onClose={() => setSelectedSnailId(null)}
+          />
         </div>
       )}
       <div className="p-4 pt-16 min-h-screen">
@@ -286,9 +293,7 @@ export function App() {
           </button>
           <button
             className="bg-glow text-soil px-2"
-            onClick={() =>
-              setActivePanel({ type: 'snail', name: 'Demo Snail', stars: 2 })
-            }
+            onClick={() => setSelectedSnailId(0)}
           >
             Show Snail
           </button>
@@ -312,7 +317,23 @@ export function App() {
       <div className="mt-4 flex">
         {map && (
           <div className="flex-1">
-            {voxel ? <Map3DView map={map} /> : <MapView map={map} />}
+            {voxel ? (
+              <Map3DView
+                map={map}
+                entities={snapshot?.entities ?? []}
+                selectedId={selectedSnailId}
+                onSelect={setSelectedSnailId}
+                onCommand={sendCommand}
+              />
+            ) : (
+              <MapView
+                map={map}
+                entities={snapshot?.entities ?? []}
+                selectedId={selectedSnailId}
+                onSelect={setSelectedSnailId}
+                onCommand={sendCommand}
+              />
+            )}
           </div>
         )}
         <div className="ml-4 w-64">

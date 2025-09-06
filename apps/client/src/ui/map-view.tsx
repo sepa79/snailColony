@@ -49,10 +49,24 @@ const resourceColors = {
 
 interface MapViewProps {
   map: MapDef;
+  entities: { id: number; x: number; y: number }[];
+  selectedId: number | null;
+  onSelect: (id: number) => void;
+  onCommand: (cmd: { t: 'Move'; dx: number; dy: number }) => void;
 }
 
-export function MapView({ map }: MapViewProps) {
+export function MapView({
+  map,
+  entities,
+  selectedId,
+  onSelect,
+  onCommand,
+}: MapViewProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const appRef = useRef<PIXI.Application | null>(null);
+  const cameraRef = useRef<PIXI.Container | null>(null);
+  const entityLayerRef = useRef<PIXI.Container | null>(null);
+  const entityRefs = useRef<Map<number, PIXI.Graphics>>(new Map());
 
   useEffect(() => {
     if (!rootRef.current) return;
@@ -61,10 +75,12 @@ export function MapView({ map }: MapViewProps) {
       background: 0x222222,
       resizeTo: rootRef.current,
     });
+    appRef.current = app;
 
     rootRef.current.appendChild(app.view as HTMLCanvasElement);
 
     const camera = new PIXI.Container();
+    cameraRef.current = camera;
     app.stage.addChild(camera);
 
     // terrain batching
@@ -84,6 +100,8 @@ export function MapView({ map }: MapViewProps) {
     const structureLayer = new PIXI.Container();
     const slimeLayer = new PIXI.Container();
     const resourceLayer = new PIXI.Container();
+    const entityLayer = new PIXI.Container();
+    entityLayerRef.current = entityLayer;
     camera.addChild(waterLayer, grassLayer, structureLayer, slimeLayer);
 
     for (let y = 0; y < map.height; y++) {
@@ -163,6 +181,7 @@ export function MapView({ map }: MapViewProps) {
     });
 
     camera.addChild(resourceLayer);
+    camera.addChild(entityLayer);
 
     const grid = new PIXI.Graphics();
     grid.lineStyle(1, 0xffffff, 0.3);
@@ -180,6 +199,7 @@ export function MapView({ map }: MapViewProps) {
     let dragging = false;
     let lastPos = { x: 0, y: 0 };
     const onDown = (e: PointerEvent) => {
+      if (e.button !== 0) return; // only left button drags
       dragging = true;
       lastPos = { x: e.clientX, y: e.clientY };
     };
@@ -250,6 +270,81 @@ export function MapView({ map }: MapViewProps) {
       app.destroy(true);
     };
   }, [map]);
+
+  // update entity graphics when entities change
+  useEffect(() => {
+    const entityLayer = entityLayerRef.current;
+    if (!entityLayer) return;
+    const refs = entityRefs.current;
+
+    // remove missing
+    for (const [id, g] of Array.from(refs.entries())) {
+      if (!entities.find((e) => e.id === id)) {
+        entityLayer.removeChild(g);
+        refs.delete(id);
+      }
+    }
+
+    entities.forEach((ent) => {
+      let g = refs.get(ent.id);
+      if (!g) {
+        g = new PIXI.Graphics();
+        g.eventMode = 'static';
+        g.cursor = 'pointer';
+        g.on('pointerdown', (e: PIXI.FederatedPointerEvent) => {
+          if (e.button === 0) onSelect(ent.id);
+        });
+        entityLayer.addChild(g);
+        refs.set(ent.id, g);
+      }
+      g.clear();
+      g.beginFill(ent.id === selectedId ? 0xff0000 : 0xffff00);
+      g.drawCircle(0, 0, 10);
+      g.endFill();
+      const px = (ent.x - ent.y) * (TILE_W / 2) + TILE_W / 2;
+      const py = (ent.x + ent.y) * (TILE_H / 2) + TILE_H / 2;
+      g.x = px;
+      g.y = py;
+    });
+  }, [entities, selectedId, onSelect]);
+
+  // handle right click commands
+  useEffect(() => {
+    const app = appRef.current;
+    const camera = cameraRef.current;
+    if (!app || !camera) return;
+    const view = app.view as HTMLCanvasElement;
+
+    const onContext = (e: MouseEvent) => e.preventDefault();
+    const onPointer = (e: PointerEvent) => {
+      if (e.button !== 2) return;
+      e.preventDefault();
+      if (selectedId == null) return;
+      const rect = view.getBoundingClientRect();
+      const mx = e.clientX - rect.left - camera.x;
+      const my = e.clientY - rect.top - camera.y;
+      const tileX = Math.floor(
+        (my / (TILE_H / 2) + mx / (TILE_W / 2)) / 2,
+      );
+      const tileY = Math.floor(
+        (my / (TILE_H / 2) - mx / (TILE_W / 2)) / 2,
+      );
+      const snail = entities.find((s) => s.id === selectedId);
+      if (!snail) return;
+      const sx = Math.floor(snail.x);
+      const sy = Math.floor(snail.y);
+      const dx = tileX - sx;
+      const dy = tileY - sy;
+      onCommand({ t: 'Move', dx, dy });
+    };
+
+    view.addEventListener('contextmenu', onContext);
+    view.addEventListener('pointerdown', onPointer);
+    return () => {
+      view.removeEventListener('contextmenu', onContext);
+      view.removeEventListener('pointerdown', onPointer);
+    };
+  }, [entities, selectedId, onCommand]);
 
   return <div ref={rootRef} className="w-full h-96" />;
 }
