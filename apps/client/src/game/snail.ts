@@ -1,4 +1,5 @@
 export interface Snail {
+  id: number;
   name: string;
   stars: number;
   brain: number;
