@@ -181,7 +181,10 @@
         playersList.appendChild(li);
       }
       const allReady = players.length > 0 && players.every((p) => p.ready);
-      startBtn.disabled = !allReady;
+      startBtn.disabled = !allReady || data.started;
+      genMapBtn.disabled = data.started;
+      widthRange.disabled = data.started;
+      heightRange.disabled = data.started;
     }
 
     async function loadMap() {
@@ -237,6 +240,10 @@
       if (res.ok) {
         errorEl.textContent = '';
         log(sysLogs, 'Game started');
+        startBtn.disabled = true;
+        genMapBtn.disabled = true;
+        widthRange.disabled = true;
+        heightRange.disabled = true;
         await loadMap();
       } else {
         const err = await res.json();
