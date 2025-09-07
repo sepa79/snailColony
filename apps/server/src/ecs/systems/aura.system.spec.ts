@@ -9,19 +9,17 @@ const params = JSON.parse(JSON.stringify(baseParams));
 
 function makeMap(terrain: string, moisture = 0, slime = 0): MapDef {
   return {
-    width: 1,
-    height: 1,
+    width: 10,
+    height: 10,
     version: 1,
     moisture,
-    tiles: [
-      {
-        terrain: terrain as unknown as TerrainType,
-        water: 'None' as WaterLayer,
-        grass: 'None' as GrassLayer,
-        structure: 'None' as Structure,
-        slime_intensity: slime,
-      },
-    ],
+    tiles: Array.from({ length: 100 }, () => ({
+      terrain: terrain as unknown as TerrainType,
+      water: 'None' as WaterLayer,
+      grass: 'None' as GrassLayer,
+      structure: 'None' as Structure,
+      slime_intensity: slime,
+    })),
   } as unknown as MapDef;
 }
 

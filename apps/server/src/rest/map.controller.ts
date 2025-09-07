@@ -33,6 +33,8 @@ export class MapController {
     }
     const width = w ? parseInt(w, 10) : undefined;
     const height = h ? parseInt(h, 10) : undefined;
-    return this.maps.generate(roomId, width, height);
+    const map = this.maps.generate(roomId, width, height);
+    room?.world.setMap(map);
+    return map;
   }
 }

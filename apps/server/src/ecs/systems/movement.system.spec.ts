@@ -13,19 +13,17 @@ const params = JSON.parse(JSON.stringify(baseParams));
 
 function makeMap(terrain: string): MapDef {
   return {
-    width: 1,
-    height: 1,
+    width: 10,
+    height: 10,
     version: 1,
     moisture: 0,
-    tiles: [
-      {
-        terrain: terrain as unknown as TerrainType,
-        water: 'None' as WaterLayer,
-        grass: 'None' as GrassLayer,
-        structure: 'None' as Structure,
-        slime_intensity: 0,
-      },
-    ],
+    tiles: Array.from({ length: 100 }, () => ({
+      terrain: terrain as unknown as TerrainType,
+      water: 'None' as WaterLayer,
+      grass: 'None' as GrassLayer,
+      structure: 'None' as Structure,
+      slime_intensity: 0,
+    })),
   } as unknown as MapDef;
 }
 
@@ -105,5 +103,28 @@ describe('movementSystem', () => {
     expect(Destination.active[eid]).toBe(0);
     expect(Velocity.dx[eid]).toBe(0);
     expect(Velocity.dy[eid]).toBe(0);
+  });
+
+  it('clamps movement within map bounds', () => {
+    const map: MapDef = {
+      width: 3,
+      height: 1,
+      version: 1,
+      moisture: 0,
+      tiles: Array.from({ length: 3 }, () => ({
+        terrain: 'grass' as unknown as TerrainType,
+        water: 'None' as WaterLayer,
+        grass: 'None' as GrassLayer,
+        structure: 'None' as Structure,
+        slime_intensity: 0,
+      })),
+    } as unknown as MapDef;
+    const { world, eid } = setup(1, 0);
+    Position.x[eid] = 2;
+    movementSystem(world, map, params);
+    expect(Position.x[eid]).toBeCloseTo(map.width - 1);
+    Velocity.dx[eid] = -1;
+    movementSystem(world, map, params);
+    expect(Position.x[eid]).toBeGreaterThanOrEqual(0);
   });
 });
