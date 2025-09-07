@@ -22,7 +22,7 @@ import params from '../config';
 export class World {
   private world: IWorld;
   private snail: number;
-  private map: MapDef;
+  private map!: MapDef;
   private params: GameParams;
   private score: ScoreState;
   private aura?: {
@@ -53,7 +53,7 @@ export class World {
     Destination.active[this.snail] = 0;
     Hydration.value[this.snail] = 100;
     const svc = new MapService();
-    this.map = svc.load('test');
+    this.setMap(svc.load('test'));
     this.params = params as GameParams;
     this.score = { sustainTicks: 0, colonies: new Set(), activeColonies: 0 };
     this.aura = undefined;
@@ -157,6 +157,20 @@ export class World {
 
   goalResult() {
     return this.score.result;
+  }
+
+  getMap(): MapDef {
+    return this.map;
+  }
+
+  setMap(map: MapDef) {
+    this.map = map;
+    const maxX = map.width - 1;
+    const maxY = map.height - 1;
+    Position.x[this.snail] = Math.min(Position.x[this.snail], maxX);
+    Position.y[this.snail] = Math.min(Position.y[this.snail], maxY);
+    Destination.x[this.snail] = Math.min(Destination.x[this.snail], maxX);
+    Destination.y[this.snail] = Math.min(Destination.y[this.snail], maxY);
   }
 }
 
