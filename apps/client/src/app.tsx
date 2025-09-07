@@ -224,7 +224,9 @@ export function App() {
 
   useEffect(() => {
     if (selectedSnailId === null) {
-      setActivePanel(null);
+      setActivePanel((current) =>
+        current?.type === 'snail' ? null : current,
+      );
       return;
     }
 
