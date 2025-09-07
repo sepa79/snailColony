@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.12] - 2025-09-08
+### Changed
+- Enforced map boundaries by clamping spawn and movement targets and rejecting out-of-bounds paths.
+- Pathfinding now observes terrain speed and hydration costs.
+- World map dimensions refresh on regeneration with tests for edge movement and colonization.
+
 ## [0.1.11] - 2025-09-08
 ### Added
 - Snail panel opens automatically when selecting a snail and refreshes when choosing another.
