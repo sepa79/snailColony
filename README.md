@@ -32,6 +32,12 @@ Run the server unit tests, including the ECS system specs, with:
 pnpm --filter @snail/server test
 ```
 
+Exercise the headless LLM client workflow tests with:
+
+```bash
+pnpm --filter @snail/llm-client test
+```
+
 To execute the full test suite across all packages:
 
 ```bash

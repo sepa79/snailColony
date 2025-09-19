@@ -1,0 +1,24 @@
+{
+  "name": "@snail/llm-client",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "snail-llm-client": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "pnpm --filter @snail/protocol build && vitest run"
+  },
+  "dependencies": {
+    "@snail/protocol": "workspace:*",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/ws": "^8.18.1",
+    "typescript": "^5.4.2",
+    "vitest": "^0.34.6"
+  }
+}
