@@ -1,7 +1,8 @@
 import { createWorld, addEntity, addComponent, hasComponent } from 'bitecs';
 import { Base, Position, Upkeep, initBase, initUpkeep } from '../components';
 import { upkeepSystem } from './upkeep.system';
-import type { MapDef, WaterLayer, GrassLayer, Structure, TerrainType } from '@snail/protocol';
+import { TerrainType } from '@snail/protocol';
+import type { MapDef, WaterLayer, GrassLayer, Structure } from '@snail/protocol';
 import baseParams from '../../config';
 const params = JSON.parse(JSON.stringify(baseParams));
 
@@ -13,7 +14,7 @@ function makeMap(structure: Structure = 'Colony' as Structure): MapDef {
     moisture: 0,
     tiles: [
       {
-        terrain: 'grass' as unknown as TerrainType,
+        terrain: TerrainType.Dirt,
         water: 'None' as WaterLayer,
         grass: 'None' as GrassLayer,
         structure,

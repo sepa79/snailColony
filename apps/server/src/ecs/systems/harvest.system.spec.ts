@@ -1,7 +1,8 @@
 import { createWorld, addEntity, addComponent } from 'bitecs';
 import { Position, Worker, Base, initWorker, initBase } from '../components';
 import { harvestSystem } from './harvest.system';
-import type { MapDef, TerrainType, WaterLayer, GrassLayer, Structure } from '@snail/protocol';
+import { TerrainType } from '@snail/protocol';
+import type { MapDef, WaterLayer, GrassLayer, Structure } from '@snail/protocol';
 
 describe('harvestSystem', () => {
   it('gathers resources and delivers to base', () => {
@@ -27,7 +28,7 @@ describe('harvestSystem', () => {
       moisture: 0,
       tiles: [
         {
-          terrain: 'Dirt' as unknown as TerrainType,
+          terrain: TerrainType.Dirt,
           water: 'None' as WaterLayer,
           grass: 'None' as GrassLayer,
           structure: 'None' as Structure,
@@ -35,7 +36,7 @@ describe('harvestSystem', () => {
           resources: { biomass: 3 },
         },
         {
-          terrain: 'Dirt' as unknown as TerrainType,
+          terrain: TerrainType.Dirt,
           water: 'None' as WaterLayer,
           grass: 'None' as GrassLayer,
           structure: 'None' as Structure,

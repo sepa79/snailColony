@@ -1,26 +1,41 @@
 {
   "terrain": {
-    "grass": {
+    "Dirt": {
       "base_speed": 1.0,
       "hydration_cost": 0.0,
       "slime_weight": 0.25
     },
-    "leaf_litter": {
+    "Mud": {
       "base_speed": 0.9,
       "hydration_cost": 0.0,
-      "slime_weight": 0.25
+      "slime_weight": 0.2
     },
-    "moss": {
-      "base_speed": 1.05,
-      "hydration_cost": 0.0,
-      "slime_weight": 0.25
+    "Sand": {
+      "base_speed": 0.85,
+      "hydration_cost": 0.1,
+      "slime_weight": 0.3
     },
-    "gravel": {
-      "base_speed": 0.8,
+    "Rock": {
+      "base_speed": 0.75,
       "hydration_cost": 0.2,
       "slime_weight": 0.7
     },
-    "sidewalk": {
+    "Brush": {
+      "base_speed": 0.95,
+      "hydration_cost": 0.0,
+      "slime_weight": 0.3
+    },
+    "Cliff": {
+      "base_speed": 0.4,
+      "hydration_cost": 0.4,
+      "slime_weight": 0.9
+    },
+    "ShallowWaterBed": {
+      "base_speed": 0.5,
+      "hydration_cost": 0.0,
+      "slime_weight": 0.1
+    },
+    "Road": {
       "base_speed": 0.6,
       "hydration_cost": 0.8,
       "slime_weight": 1.0
@@ -41,25 +56,34 @@
     "hydration_save_max": 0.5,
     "decay_per_tick": {
       "wet": {
-        "grass": 0.004,
-        "sidewalk": 0.008,
-        "gravel": 0.006,
-        "leaf_litter": 0.004,
-        "moss": 0.004
+        "Dirt": 0.004,
+        "Mud": 0.005,
+        "Sand": 0.006,
+        "Rock": 0.006,
+        "Brush": 0.004,
+        "Cliff": 0.01,
+        "ShallowWaterBed": 0.003,
+        "Road": 0.008
       },
       "damp": {
-        "grass": 0.007,
-        "sidewalk": 0.015,
-        "gravel": 0.01,
-        "leaf_litter": 0.007,
-        "moss": 0.006
+        "Dirt": 0.007,
+        "Mud": 0.008,
+        "Sand": 0.009,
+        "Rock": 0.01,
+        "Brush": 0.007,
+        "Cliff": 0.015,
+        "ShallowWaterBed": 0.005,
+        "Road": 0.015
       },
       "dry": {
-        "grass": 0.012,
-        "sidewalk": 0.03,
-        "gravel": 0.02,
-        "leaf_litter": 0.012,
-        "moss": 0.01
+        "Dirt": 0.012,
+        "Mud": 0.013,
+        "Sand": 0.016,
+        "Rock": 0.02,
+        "Brush": 0.012,
+        "Cliff": 0.025,
+        "ShallowWaterBed": 0.008,
+        "Road": 0.03
       }
     }
   },

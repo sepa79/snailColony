@@ -2,16 +2,11 @@ import { createWorld, addEntity, addComponent } from 'bitecs';
 import { Position, Velocity } from '../components';
 import { slimeDepositSystem } from './slime-deposit.system';
 import { slimeDecaySystem } from './slime-decay.system';
-import type {
-  MapDef,
-  WaterLayer,
-  GrassLayer,
-  Structure,
-  TerrainType,
-} from '@snail/protocol';
+import { TerrainType } from '@snail/protocol';
+import type { MapDef, WaterLayer, GrassLayer, Structure } from '@snail/protocol';
 import params from '../../config';
 
-function makeMap(terrain: string, moisture = 0, slime = 0): MapDef {
+function makeMap(terrain: TerrainType, moisture = 0, slime = 0): MapDef {
   return {
     width: 1,
     height: 1,
@@ -19,7 +14,7 @@ function makeMap(terrain: string, moisture = 0, slime = 0): MapDef {
     moisture,
     tiles: [
       {
-        terrain: terrain as unknown as TerrainType,
+        terrain,
         water: 'None' as WaterLayer,
         grass: 'None' as GrassLayer,
         structure: 'None' as Structure,
@@ -31,7 +26,7 @@ function makeMap(terrain: string, moisture = 0, slime = 0): MapDef {
 
 describe('slime systems', () => {
   it('deposits slime based on movement', () => {
-    const map = makeMap('sidewalk');
+    const map = makeMap(TerrainType.Road);
     const world = createWorld();
     const eid = addEntity(world);
     addComponent(world, Position, eid);
@@ -50,13 +45,13 @@ describe('slime systems', () => {
   });
 
   it('decays slime based on moisture and terrain', () => {
-    const map = makeMap('gravel', 70, 0.5); // wet
+    const map = makeMap(TerrainType.Rock, 70, 0.5); // wet
     slimeDecaySystem(createWorld(), map, {
       slime: { decay_per_tick: params.slime.decay_per_tick },
       moisture: params.moisture,
     });
     expect(map.tiles[0].slime_intensity).toBeCloseTo(
-      0.5 - params.slime.decay_per_tick.wet.gravel,
+      0.5 - params.slime.decay_per_tick.wet.Rock,
     );
   });
 });

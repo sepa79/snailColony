@@ -1,6 +1,6 @@
 import { IWorld, defineQuery } from 'bitecs';
 import { Position, Velocity } from '../components';
-import { MapDef } from '@snail/protocol';
+import { MapDef, TerrainType } from '@snail/protocol';
 import { terrainAt, tileAt } from '../../game/terrain';
 
 interface Params {
@@ -22,7 +22,7 @@ export function slimeDepositSystem(world: IWorld, map: MapDef, params: Params) {
     const tile = tileAt(map, x, y);
     if (!tile) continue;
     const terrain = terrainAt(map, x, y);
-    const weight = params.terrain?.[terrain ?? '']?.slime_weight ?? 1;
+    const weight = params.terrain?.[terrain ?? TerrainType.Dirt]?.slime_weight ?? 1;
     const deposit = params.deposit_rate_per_step * step * weight;
     tile.slime_intensity = Math.min(1, (tile.slime_intensity ?? 0) + deposit);
   }
