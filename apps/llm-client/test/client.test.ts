@@ -9,6 +9,7 @@ import {
   type LobbyStateMessage,
   type RoomStateMessage,
   type StateSnapshotMessage,
+  normalizeUrl,
 } from '../src/client';
 import {
   GrassLayer,
@@ -34,6 +35,22 @@ async function waitFor(predicate: () => boolean, timeout = 1000): Promise<void> 
     tick();
   });
 }
+
+describe('normalizeUrl', () => {
+  test('defaults to ws:// and appends /ws for bare hostnames', () => {
+    expect(normalizeUrl('localhost:3000')).toBe('ws://localhost:3000/ws');
+  });
+
+  test('preserves fully-qualified URLs with custom paths', () => {
+    const input = 'wss://snail.example.com/custom/path?foo=bar#stats';
+    expect(normalizeUrl(input)).toBe(input);
+  });
+
+  test('leaves existing /ws endpoints with query parameters untouched', () => {
+    const input = 'wss://snail.example.com/ws?token=abc123';
+    expect(normalizeUrl(input)).toBe(input);
+  });
+});
 
 describe('LLMGameClient', () => {
   test('joins, readies after lobby, and forwards brain moves', async () => {

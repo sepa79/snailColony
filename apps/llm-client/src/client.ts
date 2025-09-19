@@ -30,7 +30,7 @@ export interface LLMGameBrain {
 
 export interface LLMGameClientOptions {
   /**
-   * WebSocket endpoint. If the protocol is omitted, `ws://` is assumed and `/ws` is appended when missing.
+   * WebSocket endpoint. If the protocol is omitted, `ws://` is assumed and `/ws` is only appended when no path is provided.
    */
   url: string;
   /**
@@ -66,15 +66,20 @@ export interface LLMGameClientOptions {
   };
 }
 
-function normalizeUrl(url: string): string {
-  let target = url.trim();
-  if (!target.includes('://')) {
-    target = `ws://${target}`;
+export function normalizeUrl(url: string): string {
+  const trimmed = url.trim();
+  const hasProtocol = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(trimmed);
+  const target = new URL(hasProtocol ? trimmed : `ws://${trimmed}`);
+
+  if (!target.protocol) {
+    target.protocol = 'ws:';
   }
-  if (!target.endsWith('/ws')) {
-    target = target.replace(/\/?$/, '/ws');
+
+  if (target.pathname === '' || target.pathname === '/') {
+    target.pathname = '/ws';
   }
-  return target;
+
+  return target.toString();
 }
 
 export class LLMGameClient {
