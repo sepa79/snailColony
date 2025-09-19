@@ -6,7 +6,7 @@ state updates.
 
 ## Features
 
-- Normalises SnailColony WebSocket URLs and sends the required `Join`/`SetReady`/`Move` commands.
+- Normalises SnailColony WebSocket URLs (defaulting to `ws://` and appending `/ws` only when no path is supplied) and sends the required `Join`/`SetReady`/`Move` commands.
 - Emits typed callbacks (`LobbyState`, `RoomState`, `State`) for custom AI integrations.
 - Ships with a small scripted brain and CLI runner for local experimentation.
 
@@ -39,6 +39,9 @@ client.onLobbyState((lobby) => {
 
 await client.connect();
 ```
+
+> **Custom endpoints:** Pass a full WebSocket URL when targeting anything other than the default `/ws` path (for example, `wss://colony.example.com/private/ws?token=abc`).
+> Bare hostnames such as `localhost:3000` are automatically treated as `ws://localhost:3000/ws`.
 
 Implement the `LLMGameBrain` interface to supply your own decision making. Return `Move` commands
 from `onState` or call `context.sendCommand` for direct control.
