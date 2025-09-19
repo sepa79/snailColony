@@ -105,6 +105,7 @@ export function MapView({
     const slimeLayer = new PIXI.Container();
     const resourceLayer = new PIXI.Container();
     const highlight = new PIXI.Graphics();
+    highlight.visible = false;
     highlightRef.current = highlight;
     const entityLayer = new PIXI.Container();
     entityLayerRef.current = entityLayer;
@@ -220,7 +221,53 @@ export function MapView({
       dragging = false;
     };
 
-    (app.view as HTMLCanvasElement).addEventListener('pointerdown', onDown);
+    const view = app.view as HTMLCanvasElement;
+
+    const updateHighlight = (clientX: number, clientY: number) => {
+      const highlightG = highlightRef.current;
+      if (!highlightG) return;
+      const rect = view.getBoundingClientRect();
+      const mx = clientX - rect.left - camera.x;
+      const my = clientY - rect.top - camera.y;
+      const tileX = Math.floor(
+        (my / (TILE_H / 2) + mx / (TILE_W / 2)) / 2,
+      );
+      const tileY = Math.floor(
+        (my / (TILE_H / 2) - mx / (TILE_W / 2)) / 2,
+      );
+      if (
+        tileX >= 0 &&
+        tileY >= 0 &&
+        tileX < map.width &&
+        tileY < map.height
+      ) {
+        highlightG.clear();
+        highlightG.visible = true;
+        highlightG.lineStyle(2, 0xffff00);
+        const px = (tileX - tileY) * (TILE_W / 2);
+        const py = (tileX + tileY) * (TILE_H / 2);
+        drawDiamond(highlightG, px, py);
+      } else {
+        highlightG.clear();
+        highlightG.visible = false;
+      }
+    };
+
+    const onHover = (e: PointerEvent) => {
+      updateHighlight(e.clientX, e.clientY);
+    };
+
+    const clearHighlight = () => {
+      const highlightG = highlightRef.current;
+      if (!highlightG) return;
+      highlightG.clear();
+      highlightG.visible = false;
+    };
+
+    view.addEventListener('pointerdown', onDown);
+    view.addEventListener('pointermove', onHover);
+    view.addEventListener('pointerleave', clearHighlight);
+    view.addEventListener('pointerout', clearHighlight);
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
 
@@ -273,7 +320,10 @@ export function MapView({
       window.removeEventListener('keydown', keyHandler);
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
-      (app.view as HTMLCanvasElement).removeEventListener('pointerdown', onDown);
+      view.removeEventListener('pointerdown', onDown);
+      view.removeEventListener('pointermove', onHover);
+      view.removeEventListener('pointerleave', clearHighlight);
+      view.removeEventListener('pointerout', clearHighlight);
       app.destroy(true);
     };
   }, [map]);
@@ -390,6 +440,7 @@ export function MapView({
         const px = (tileX - tileY) * (TILE_W / 2);
         const py = (tileX + tileY) * (TILE_H / 2);
         drawDiamond(highlight, px, py);
+        highlight.visible = true;
       }
       onCommand({ t: 'Move', dx, dy });
     };
