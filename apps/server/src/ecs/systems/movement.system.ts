@@ -1,6 +1,6 @@
 import { IWorld, defineQuery } from 'bitecs';
 import { Position, Velocity, Destination } from '../components';
-import { MapDef } from '@snail/protocol';
+import { MapDef, TerrainType } from '@snail/protocol';
 import { terrainAt, tileAt } from '../../game/terrain';
 import type { GameParams } from '../../config';
 
@@ -23,7 +23,7 @@ export function movementSystem(world: IWorld, map: MapDef, params: Params) {
     const y = Math.floor(Position.y[eid]);
     const terrain = terrainAt(map, x, y);
     const tile = tileAt(map, x, y);
-    const base = params.terrain?.[terrain ?? '']?.base_speed ?? 1;
+    const base = params.terrain?.[terrain ?? TerrainType.Dirt]?.base_speed ?? 1;
     const bonus = (tile?.slime_intensity ?? 0) * (params.slime?.speed_bonus_max ?? 0);
     let speed = base + bonus;
     if (params.aura) {

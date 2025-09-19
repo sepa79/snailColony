@@ -16,7 +16,7 @@ import { upkeepSystem } from './systems/upkeep.system';
 import { updateMoistureAndAurasSystem } from './systems/update-moisture-and-auras.system';
 import { scoringSystem, ScoreState } from './systems/scoring.system';
 import { MapService } from '../game/map.service';
-import { MapDef, GameParams } from '@snail/protocol';
+import { MapDef, GameParams, TerrainType } from '@snail/protocol';
 import params from '../config';
 
 export class World {
@@ -32,7 +32,7 @@ export class World {
     slime_decay_multiplier: number;
     bases: { x: number; y: number }[];
   };
-  private sidewalkDefaults: { base_speed: number; hydration_cost: number };
+  private roadDefaults: { base_speed: number; hydration_cost: number };
   private dispatch: Record<string, () => void>;
 
   constructor() {
@@ -57,9 +57,13 @@ export class World {
     this.params = params as GameParams;
     this.score = { sustainTicks: 0, colonies: new Set(), activeColonies: 0 };
     this.aura = undefined;
-    this.sidewalkDefaults = {
-      base_speed: this.params.terrain.sidewalk.base_speed,
-      hydration_cost: this.params.terrain.sidewalk.hydration_cost,
+    const roadParams = this.params.terrain[TerrainType.Road] ?? {
+      base_speed: 0.6,
+      hydration_cost: 0.8,
+    };
+    this.roadDefaults = {
+      base_speed: roadParams.base_speed,
+      hydration_cost: roadParams.hydration_cost,
     };
     this.dispatch = {
       update_moisture_and_auras: () => {
@@ -67,7 +71,7 @@ export class World {
           this.world,
           this.map,
           this.params,
-          this.sidewalkDefaults,
+          this.roadDefaults,
         );
       },
       slime_decay: () => {

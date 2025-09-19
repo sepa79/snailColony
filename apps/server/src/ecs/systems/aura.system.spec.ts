@@ -3,18 +3,19 @@ import { Position, Velocity, Hydration, Worker, initWorker } from '../components
 import { movementSystem } from './movement.system';
 import { hydrationSystem } from './hydration.system';
 import { slimeDecaySystem } from './slime-decay.system';
-import type { MapDef, WaterLayer, GrassLayer, Structure, TerrainType } from '@snail/protocol';
+import { TerrainType } from '@snail/protocol';
+import type { MapDef, WaterLayer, GrassLayer, Structure } from '@snail/protocol';
 import baseParams from '../../config';
 const params = JSON.parse(JSON.stringify(baseParams));
 
-function makeMap(terrain: string, moisture = 0, slime = 0): MapDef {
+function makeMap(terrain: TerrainType, moisture = 0, slime = 0): MapDef {
   return {
     width: 10,
     height: 10,
     version: 1,
     moisture,
     tiles: Array.from({ length: 100 }, () => ({
-      terrain: terrain as unknown as TerrainType,
+      terrain,
       water: 'None' as WaterLayer,
       grass: 'None' as GrassLayer,
       structure: 'None' as Structure,
@@ -25,7 +26,7 @@ function makeMap(terrain: string, moisture = 0, slime = 0): MapDef {
 
 describe('aura effects', () => {
   it('reduces hydration cost within aura', () => {
-    const map = makeMap('sidewalk');
+    const map = makeMap(TerrainType.Road);
     const world = createWorld();
     const eid = addEntity(world);
     addComponent(world, Hydration, eid);
@@ -47,13 +48,13 @@ describe('aura effects', () => {
         bases: [{ x: 0, y: 0 }],
       },
     });
-    const base = params.terrain.sidewalk.hydration_cost;
+    const base = params.terrain[TerrainType.Road].hydration_cost;
     const expected = 5 - base * params.upkeep.aura.hydration_cost_hard_multiplier;
     expect(Hydration.value[eid]).toBeCloseTo(expected);
   });
 
   it('adds speed bonus within aura', () => {
-    const map = makeMap('grass');
+    const map = makeMap(TerrainType.Dirt);
     const world = createWorld();
     const eid = addEntity(world);
     addComponent(world, Position, eid);
@@ -75,7 +76,7 @@ describe('aura effects', () => {
   });
 
   it('slows slime decay within aura', () => {
-    const map = makeMap('sidewalk', 0, 1);
+    const map = makeMap(TerrainType.Road, 0, 1);
     slimeDecaySystem(createWorld(), map, {
       slime: { decay_per_tick: params.slime.decay_per_tick },
       moisture: params.moisture,
@@ -85,7 +86,7 @@ describe('aura effects', () => {
         bases: [{ x: 0, y: 0 }],
       },
     });
-    const decay = params.slime.decay_per_tick.dry.sidewalk * params.upkeep.aura.slime_decay_multiplier;
+    const decay = params.slime.decay_per_tick.dry.Road * params.upkeep.aura.slime_decay_multiplier;
     expect(map.tiles[0].slime_intensity).toBeCloseTo(1 - decay);
   });
 });

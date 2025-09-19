@@ -1,6 +1,6 @@
 import { IWorld, defineQuery, addComponent } from 'bitecs';
 import { Hydration, Velocity, Position, Worker, Dead } from '../components';
-import { MapDef } from '@snail/protocol';
+import { MapDef, TerrainType } from '@snail/protocol';
 import { terrainAt, isWaterNode, tileAt } from '../../game/terrain';
 import type { GameParams } from '../../config';
 
@@ -25,7 +25,7 @@ export function hydrationSystem(world: IWorld, map: MapDef, params: Params) {
     let value = Hydration.value[eid];
     if (Velocity.dx[eid] !== 0 || Velocity.dy[eid] !== 0) {
       const tile = tileAt(map, x, y);
-      const baseCost = params.terrain?.[terrain ?? '']?.hydration_cost ?? 0;
+      const baseCost = params.terrain?.[terrain ?? TerrainType.Dirt]?.hydration_cost ?? 0;
       const save = (tile?.slime_intensity ?? 0) * (params.slime?.hydration_save_max ?? 0);
       let cost = baseCost * (1 - save);
       if (params.aura) {
@@ -44,7 +44,7 @@ export function hydrationSystem(world: IWorld, map: MapDef, params: Params) {
       value = Worker.hydration_max[eid];
     }
     Hydration.value[eid] = value;
-    if (value <= 0 && (terrain === 'gravel' || terrain === 'sidewalk')) {
+    if (value <= 0 && (terrain === TerrainType.Rock || terrain === TerrainType.Road)) {
       addComponent(world, Dead, eid);
     }
   }

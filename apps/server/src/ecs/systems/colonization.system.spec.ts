@@ -1,7 +1,8 @@
 import { createWorld, addEntity, addComponent, defineQuery, hasComponent } from 'bitecs';
 import { Base, Position, BuildTimer, initBase } from '../components';
 import { colonizationSystem } from './colonization.system';
-import type { MapDef, TerrainType, WaterLayer, GrassLayer, Structure } from '@snail/protocol';
+import { TerrainType } from '@snail/protocol';
+import type { MapDef, WaterLayer, GrassLayer, Structure } from '@snail/protocol';
 import baseParams from '../../config';
 
 describe('colonizationSystem', () => {
@@ -16,14 +17,14 @@ describe('colonizationSystem', () => {
       moisture: 0,
       tiles: [
         {
-          terrain: 'Dirt' as unknown as TerrainType,
+          terrain: TerrainType.Dirt,
           water: 'None' as WaterLayer,
           grass: 'None' as GrassLayer,
           structure: 'None' as Structure,
           slime_intensity: 0,
         },
         {
-          terrain: 'Dirt' as unknown as TerrainType,
+          terrain: TerrainType.Dirt,
           water: 'None' as WaterLayer,
           grass: 'None' as GrassLayer,
           structure: 'None' as Structure,
@@ -68,7 +69,7 @@ describe('colonizationSystem', () => {
       moisture: 0,
       tiles: [
         {
-          terrain: 'Dirt' as unknown as TerrainType,
+          terrain: TerrainType.Dirt,
           water: 'None' as WaterLayer,
           grass: 'None' as GrassLayer,
           structure: 'None' as Structure,

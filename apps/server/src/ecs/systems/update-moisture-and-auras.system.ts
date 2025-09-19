@@ -1,9 +1,9 @@
 import { IWorld, defineQuery } from 'bitecs';
-import { MapDef } from '@snail/protocol';
+import { MapDef, TerrainType } from '@snail/protocol';
 import { Position, Upkeep } from '../components';
 import type { GameParams } from '../../config';
 
-interface SidewalkDefaults {
+interface RoadDefaults {
   base_speed: number;
   hydration_cost: number;
 }
@@ -22,17 +22,21 @@ export function updateMoistureAndAurasSystem(
   world: IWorld,
   map: MapDef,
   params: GameParams,
-  sidewalkDefaults: SidewalkDefaults,
+  roadDefaults: RoadDefaults,
 ): AuraParams {
   map.moisture = Math.max(0, map.moisture - 1);
 
   if (map.moisture < params.moisture.thresholds.damp) {
-    params.terrain.sidewalk.base_speed = params.moisture.sidewalk_dry_speed;
-    params.terrain.sidewalk.hydration_cost =
-      params.moisture.sidewalk_dry_hydration_cost;
+    if (params.terrain[TerrainType.Road]) {
+      params.terrain[TerrainType.Road].base_speed = params.moisture.sidewalk_dry_speed;
+      params.terrain[TerrainType.Road].hydration_cost =
+        params.moisture.sidewalk_dry_hydration_cost;
+    }
   } else {
-    params.terrain.sidewalk.base_speed = sidewalkDefaults.base_speed;
-    params.terrain.sidewalk.hydration_cost = sidewalkDefaults.hydration_cost;
+    if (params.terrain[TerrainType.Road]) {
+      params.terrain[TerrainType.Road].base_speed = roadDefaults.base_speed;
+      params.terrain[TerrainType.Road].hydration_cost = roadDefaults.hydration_cost;
+    }
   }
 
   const bases: { x: number; y: number }[] = [];
