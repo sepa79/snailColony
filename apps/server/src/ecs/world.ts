@@ -1,4 +1,4 @@
-import { IWorld, addComponent, addEntity, createWorld } from 'bitecs';
+import { IWorld, addComponent, addEntity, createWorld, removeComponent } from 'bitecs';
 import {
   Hydration,
   Position,
@@ -6,6 +6,10 @@ import {
   Destination,
   Worker,
   initWorker,
+  Base,
+  Upkeep,
+  initBase,
+  initUpkeep,
 } from './components';
 import { movementSystem } from './systems/movement.system';
 import { hydrationSystem } from './systems/hydration.system';
@@ -16,8 +20,22 @@ import { upkeepSystem } from './systems/upkeep.system';
 import { updateMoistureAndAurasSystem } from './systems/update-moisture-and-auras.system';
 import { scoringSystem, ScoreState } from './systems/scoring.system';
 import { MapService } from '../game/map.service';
-import { MapDef, GameParams, TerrainType } from '@snail/protocol';
+import { MapDef, GameParams, TerrainType, Structure } from '@snail/protocol';
 import params from '../config';
+
+type UnitSnapshot = { id: number; x: number; y: number; hydration: number };
+type BaseSnapshot = {
+  id: number;
+  x: number;
+  y: number;
+  biomass: number;
+  water: number;
+  active: boolean;
+};
+type WorldSnapshot = UnitSnapshot[] & {
+  bases: BaseSnapshot[];
+  startingBase?: number;
+};
 
 export class World {
   private world: IWorld;
@@ -25,6 +43,9 @@ export class World {
   private map!: MapDef;
   private params: GameParams;
   private score: ScoreState;
+  private bases: number[];
+  private startingBase?: number;
+  private activeColonies: number[];
   private aura?: {
     radius: number;
     speed_bonus: number;
@@ -37,13 +58,16 @@ export class World {
 
   constructor() {
     this.world = createWorld();
+    this.params = params as GameParams;
+    this.bases = [];
+    this.startingBase = undefined;
+    this.activeColonies = [];
     this.snail = addEntity(this.world);
     addComponent(this.world, Position, this.snail);
     addComponent(this.world, Velocity, this.snail);
     addComponent(this.world, Destination, this.snail);
     addComponent(this.world, Hydration, this.snail);
     addComponent(this.world, Worker, this.snail);
-    initWorker(this.snail);
     Position.x[this.snail] = 0;
     Position.y[this.snail] = 0;
     Velocity.dx[this.snail] = 0;
@@ -52,10 +76,10 @@ export class World {
     Destination.y[this.snail] = 0;
     Destination.active[this.snail] = 0;
     Hydration.value[this.snail] = 100;
+    this.score = { sustainTicks: 0, colonies: new Set(), activeColonies: 0 };
     const svc = new MapService();
     this.setMap(svc.load('test'));
-    this.params = params as GameParams;
-    this.score = { sustainTicks: 0, colonies: new Set(), activeColonies: 0 };
+    initWorker(this.snail, this.startingBase ?? -1);
     this.aura = undefined;
     const roadParams = this.params.terrain[TerrainType.Road] ?? {
       base_speed: 0.6,
@@ -72,6 +96,7 @@ export class World {
           this.map,
           this.params,
           this.roadDefaults,
+          this.activeColonies,
         );
       },
       slime_decay: () => {
@@ -106,7 +131,7 @@ export class World {
           base: this.params.upkeep.base,
           colony: this.params.upkeep.colony,
           dormant_collapse_seconds: this.params.upkeep.dormant_collapse_seconds,
-        });
+        }, this.activeColonies);
       },
       check_goal: () => {
         scoringSystem(
@@ -116,10 +141,11 @@ export class World {
             sustain_minutes: this.params.goal.sustain_minutes,
             active_min_stock_any: this.params.goal.active_min_stock_any,
             tick_rate_hz: this.params.simulation.tick_rate_hz,
-            starting_base: undefined,
+            starting_base: this.startingBase,
           },
           this.score,
         );
+        this.activeColonies = Array.from(this.score.colonies);
       },
     };
   }
@@ -131,8 +157,8 @@ export class World {
     }
   }
 
-  snapshot() {
-    return [
+  snapshot(): WorldSnapshot {
+    const units = [
       {
         id: this.snail,
         x: Position.x[this.snail],
@@ -140,6 +166,17 @@ export class World {
         hydration: Hydration.value[this.snail],
       },
     ];
+    const snapshot = units as unknown as WorldSnapshot;
+    snapshot.bases = this.bases.map((eid) => ({
+      id: eid,
+      x: Position.x[eid],
+      y: Position.y[eid],
+      biomass: Base.biomass[eid],
+      water: Base.water[eid],
+      active: Upkeep.active[eid] === 1,
+    }));
+    snapshot.startingBase = this.startingBase;
+    return snapshot;
   }
 
   setVelocity(dx: number, dy: number) {
@@ -169,12 +206,50 @@ export class World {
 
   setMap(map: MapDef) {
     this.map = map;
+    this.seedBasesFromMap();
     const maxX = map.width - 1;
     const maxY = map.height - 1;
-    Position.x[this.snail] = Math.min(Position.x[this.snail], maxX);
-    Position.y[this.snail] = Math.min(Position.y[this.snail], maxY);
-    Destination.x[this.snail] = Math.min(Destination.x[this.snail], maxX);
-    Destination.y[this.snail] = Math.min(Destination.y[this.snail], maxY);
+    Position.x[this.snail] = Math.max(0, Math.min(Position.x[this.snail], maxX));
+    Position.y[this.snail] = Math.max(0, Math.min(Position.y[this.snail], maxY));
+    Destination.x[this.snail] = Math.max(0, Math.min(Destination.x[this.snail], maxX));
+    Destination.y[this.snail] = Math.max(0, Math.min(Destination.y[this.snail], maxY));
+    if (this.startingBase !== undefined) {
+      Worker.base[this.snail] = this.startingBase;
+    } else {
+      Worker.base[this.snail] = -1;
+    }
+  }
+
+  private seedBasesFromMap() {
+    for (const eid of this.bases) {
+      removeComponent(this.world, Position, eid);
+      removeComponent(this.world, Base, eid);
+      removeComponent(this.world, Upkeep, eid);
+    }
+    const newBases: number[] = [];
+    this.startingBase = undefined;
+    this.map.tiles.forEach((tile, index) => {
+      if (tile.structure !== Structure.Colony) {
+        return;
+      }
+      const eid = addEntity(this.world);
+      addComponent(this.world, Position, eid);
+      addComponent(this.world, Base, eid);
+      addComponent(this.world, Upkeep, eid);
+      const x = index % this.map.width;
+      const y = Math.floor(index / this.map.width);
+      Position.x[eid] = Math.max(0, Math.min(x, this.map.width - 1));
+      Position.y[eid] = Math.max(0, Math.min(y, this.map.height - 1));
+      initBase(eid);
+      initUpkeep(eid, this.params.upkeep.interval_seconds);
+      newBases.push(eid);
+      if (this.startingBase === undefined) {
+        this.startingBase = eid;
+      }
+    });
+    this.bases = newBases;
+    this.activeColonies = [...this.bases];
+    this.score.colonies = new Set(this.bases);
   }
 }
 

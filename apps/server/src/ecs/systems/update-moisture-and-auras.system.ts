@@ -1,4 +1,4 @@
-import { IWorld, defineQuery } from 'bitecs';
+import { IWorld, defineQuery, hasComponent } from 'bitecs';
 import { MapDef, TerrainType } from '@snail/protocol';
 import { Position, Upkeep } from '../components';
 import type { GameParams } from '../../config';
@@ -23,6 +23,7 @@ export function updateMoistureAndAurasSystem(
   map: MapDef,
   params: GameParams,
   roadDefaults: RoadDefaults,
+  baseIds?: number[],
 ): AuraParams {
   map.moisture = Math.max(0, map.moisture - 1);
 
@@ -40,8 +41,14 @@ export function updateMoistureAndAurasSystem(
   }
 
   const bases: { x: number; y: number }[] = [];
-  const ents = baseQuery(world);
+  const ents = baseIds ?? baseQuery(world);
   for (const eid of ents) {
+    if (
+      !hasComponent(world, Position, eid) ||
+      !hasComponent(world, Upkeep, eid)
+    ) {
+      continue;
+    }
     if (Upkeep.active[eid]) {
       bases.push({ x: Position.x[eid], y: Position.y[eid] });
     }

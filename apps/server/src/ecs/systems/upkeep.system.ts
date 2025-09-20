@@ -1,4 +1,4 @@
-import { IWorld, defineQuery, removeComponent } from 'bitecs';
+import { IWorld, defineQuery, hasComponent, removeComponent } from 'bitecs';
 import { Base, Position, Upkeep } from '../components';
 import { MapDef, Structure } from '@snail/protocol';
 import { tileAt } from '../../game/terrain';
@@ -13,9 +13,21 @@ interface Params {
 
 const upkeepQuery = defineQuery([Base, Upkeep, Position]);
 
-export function upkeepSystem(world: IWorld, map: MapDef, params: Params) {
-  const ents = upkeepQuery(world);
+export function upkeepSystem(
+  world: IWorld,
+  map: MapDef,
+  params: Params,
+  baseIds?: number[],
+) {
+  const ents = baseIds ?? upkeepQuery(world);
   for (const eid of ents) {
+    if (
+      !hasComponent(world, Position, eid) ||
+      !hasComponent(world, Base, eid) ||
+      !hasComponent(world, Upkeep, eid)
+    ) {
+      continue;
+    }
     Upkeep.timer[eid] -= 1;
     if (Upkeep.timer[eid] <= 0) {
       Upkeep.timer[eid] = params.interval_seconds;
