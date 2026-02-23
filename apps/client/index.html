@@ -1,16 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <title>SnailColony</title>
+    <title>SnailColony Tech Demo</title>
+    <style>
+      html, body, #app {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #10171d;
+        color: #d7e7f5;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      #connection-status {
+        position: fixed;
+        top: 8px;
+        right: 8px;
+        z-index: 20;
+        font-size: 12px;
+        background: rgba(8, 12, 16, 0.85);
+        border: 1px solid rgba(215, 231, 245, 0.3);
+        color: #f5e8a8;
+        padding: 6px 8px;
+        border-radius: 6px;
+        max-width: 42vw;
+        word-break: break-word;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="app"></div>
+    <div id="connection-status">Booting...</div>
+    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -1,53 +1,53 @@
-# SnailColony
+# SnailColony (Phaser + Colyseus)
 
-Monorepo scaffold for the SnailColony proof of concept game.
+Projekt jest przepisywany z archiwalnego prototypu do docelowego stacku browser-first:
+- klient: Phaser 3 + Vite + TypeScript
+- serwer (autorytatywny): Colyseus + TypeScript
+- wspolne reguly i parametry: `packages/shared`
 
-## Development
+## Archiwum starej wersji
+Poprzedni monorepo jest zachowany w:
+- `archive/legacy-2026-02-11`
 
+## Stan implementacji
+Aktualny etap to "pelna gra MVP" wedlug zalozen faz 01-08:
+- mapa + warstwy zasobow + wilgoc
+- wielu Worker Snails (per gracz)
+- ruch + hydration + smierc na twardym terenie
+- slime deposit/decay i jego wplyw na ruch/hydration
+- bazy i kolonie (budowa z kosztem/czasem)
+- upkeep + aura + collapse kolonii
+- cel Colonize & Sustain (postep + wynik Victory/Defeat)
+- HUD i podstawowe sterowanie RTS-lite
+- AI minimum: pionier, konwoj i konserwacja sladu
+
+## Start
 ```bash
 pnpm install
 pnpm dev
 ```
 
-The application uses Docker for dependencies:
+Aplikacje:
+- client: `http://localhost:5173`
+- server: `ws://localhost:2567`
+- health: `http://localhost:2567/health`
 
+## Sterowanie
+- `LPM` na jednostce: select Workera
+- `LPM` na mapie: move dla wybranego Workera
+- `N`: spawn nowego Workera (koszt z bazy startowej)
+- `B`: build colony na pozycji wybranego Workera (jesli teren i koszt pozwala)
+- `TAB`: cykl wyboru po Twoich Workerach
+- `A`: toggle Auto Mode (AI dla Twoich workerow)
+- `H`: toggle heatmapy sluzu
+- `PPM` lub `Shift+drag`: pan kamery
+- `Kolo myszy`: zoom
+
+## Przydatne komendy
 ```bash
-pnpm compose:up
-```
-
-Access the client at http://localhost/ and connect to a server via WebSocket URL. After connecting,
-an isometric map is rendered using PixiJS with an optional voxel preview. Use arrow keys or drag to
-pan in 2D. Press **G** to toggle grid lines and **W** to enable or disable simple water animation.
-A **3D View** button switches to a Three.js scene where the map is rendered as voxels; in this mode
-**G** toggles the grid, **W** the water ripple, **Space** pauses animation, and **R** resets the camera.
-
-The server also serves a lightweight dashboard at http://localhost:3000/ui for viewing state, launching simple game actions, and displaying the same isometric map renderer used by the client. A **Redraw Map** button requests the latest room state from the server and refreshes the view.
-Debug buttons expose colony and snail panels for inspecting state during development.
-
-## Testing
-
-Run the server unit tests, including the ECS system specs, with:
-
-```bash
+pnpm --filter @snail/server lint
 pnpm --filter @snail/server test
+pnpm --filter @snail/client lint
+pnpm --filter @snail/client test
+pnpm build
 ```
-
-Exercise the headless LLM client workflow tests with:
-
-```bash
-pnpm --filter @snail/llm-client test
-```
-
-To execute the full test suite across all packages:
-
-```bash
-pnpm test
-```
-
-## Documentation
-
-- [CHANGELOG](CHANGELOG.md)
-- [PLAN](PLAN.md)
-- [STAGE](STAGE.md)
-
-Current version: 0.1.11
